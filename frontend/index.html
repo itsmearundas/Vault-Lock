@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>VaultLock</title>
+<link rel="stylesheet" href="style.css">
+<!-- Boot-splash styling is inlined (rather than living in style.css) so it
+     is guaranteed to be present for the very first paint of the window,
+     with zero dependency on style.css having finished loading/parsing
+     first. It is entirely self-contained: nothing here is read by, or
+     shares state with, app.js's own render()/mount() cycle, so it can't
+     interfere with (or be broken by) any app logic. -->
+<style>
+  #boot-splash{
+    position:fixed; inset:0; z-index:9999;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
+    background:
+      radial-gradient(60% 55% at 50% 42%, rgba(61,90,254,.20), rgba(61,90,254,0) 70%),
+      linear-gradient(160deg, #0A0A0C 0%, #17181D 55%, #0A0A0C 100%);
+    font-family:"Segoe UI", -apple-system, "Inter", "Helvetica Neue", Arial, sans-serif;
+    animation: splash-in .5s ease-out both;
+  }
+  #boot-splash.leaving{ animation: splash-out .55s cubic-bezier(.4,0,.2,1) both; pointer-events:none; }
+  @keyframes splash-in{ from{ opacity:0; } to{ opacity:1; } }
+  @keyframes splash-out{ from{ opacity:1; transform:scale(1); } to{ opacity:0; transform:scale(1.04); } }
+
+  #boot-splash .glow-ring{
+    position:absolute; width:260px; height:260px; border-radius:50%;
+    background:radial-gradient(circle, rgba(61,90,254,.35), rgba(61,90,254,0) 68%);
+    animation: glow-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes glow-pulse{
+    0%,100%{ opacity:.55; transform:scale(.92); }
+    50%{ opacity:1; transform:scale(1.08); }
+  }
+
+  #boot-splash .lock-wrap{ position:relative; width:96px; height:96px; }
+  #boot-splash svg{ position:relative; width:96px; height:96px; overflow:visible; }
+  #boot-splash .lock-shackle{
+    transform-origin: 48px 40px;
+    animation: shackle-close .9s cubic-bezier(.2,1.5,.4,1) .15s both;
+  }
+  @keyframes shackle-close{
+    0%{ transform: translateY(-14px) rotate(-14deg); opacity:0; }
+    55%{ transform: translateY(1px) rotate(3deg); opacity:1; }
+    75%{ transform: translateY(-2px) rotate(-1deg); }
+    100%{ transform: translateY(0) rotate(0deg); }
+  }
+  #boot-splash .lock-body{
+    animation: body-in .4s ease-out .05s both;
+  }
+  @keyframes body-in{ from{ opacity:0; transform:scale(.85); } to{ opacity:1; transform:scale(1); } }
+  #boot-splash .lock-keyhole{
+    animation: keyhole-flash .9s ease-out 1.05s both;
+  }
+  @keyframes keyhole-flash{
+    0%{ opacity:0; }
+    35%{ opacity:1; filter:drop-shadow(0 0 6px #3D5AFE); }
+    100%{ opacity:1; filter:drop-shadow(0 0 0 transparent); }
+  }
+  #boot-splash .lock-sweep{
+    animation: sweep-across 1.6s ease-in-out .35s infinite;
+  }
+  @keyframes sweep-across{
+    0%{ transform: translateX(-70px); opacity:0; }
+    12%{ opacity:.9; }
+    50%{ opacity:.9; }
+    65%{ opacity:0; }
+    100%{ transform: translateX(70px); opacity:0; }
+  }
+
+  #boot-splash .wordmark{
+    display:flex; letter-spacing:.5px; font-size:22px; font-weight:700; color:#F1F2F6;
+  }
+  #boot-splash .wordmark span{
+    display:inline-block; opacity:0; transform:translateY(6px);
+    animation: letter-in .45s ease-out both;
+  }
+  @keyframes letter-in{ to{ opacity:1; transform:translateY(0); } }
+  #boot-splash .tagline{
+    font-size:12.5px; color:#9AA0A6; letter-spacing:.3px;
+    opacity:0; animation: tagline-in .5s ease-out .9s both;
+  }
+  @keyframes tagline-in{ to{ opacity:1; } }
+</style>
+</head>
+<body>
+  <!-- Launch animation: plays the instant the window opens, independent of
+       the pywebview JS bridge coming online. app.js fades and removes this
+       element (adding class "leaving", then deleting the node) the moment
+       the real UI has its first screen ready to show — see the small hook
+       at the top of app.js's onReady() callback. If, for any reason, that
+       hook never runs (very old browser fallback, JS error before boot),
+       nothing about the underlying app breaks: this is a purely decorative
+       overlay sitting on top of #root, not a gate the app waits on. -->
+  <div id="boot-splash" aria-hidden="true">
+    <div class="glow-ring"></div>
+    <div class="lock-wrap">
+      <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g class="lock-shackle">
+          <path d="M30 44V32C30 20.9543 38.9543 12 50 12V12C61.0457 12 70 20.9543 70 32V44"
+                stroke="#3D5AFE" stroke-width="7" stroke-linecap="round"/>
+        </g>
+        <g class="lock-body">
+          <rect x="20" y="42" width="56" height="42" rx="10" fill="#17181D" stroke="#3D5AFE" stroke-width="2.5"/>
+        </g>
+        <circle class="lock-keyhole" cx="48" cy="60" r="5.5" fill="#3D5AFE"/>
+        <rect class="lock-keyhole" x="45.3" y="60" width="5.4" height="12" rx="2.4" fill="#3D5AFE"/>
+        <clipPath id="sweep-clip"><rect x="20" y="42" width="56" height="42" rx="10"/></clipPath>
+        <g clip-path="url(#sweep-clip)">
+          <rect class="lock-sweep" x="14" y="38" width="14" height="52" fill="rgba(255,255,255,.16)" transform="skewX(-18)"/>
+        </g>
+      </svg>
+    </div>
+    <div class="wordmark" id="boot-splash-word"></div>
+    <div class="tagline">Encrypting the moment you open it</div>
+  </div>
+  <script>
+    // Staggers each letter of the wordmark in via its own tiny delay,
+    // written in plain DOM (no dependency on app.js's h()/mount() helpers,
+    // which aren't defined yet at this point in the page's lifecycle).
+    (function(){
+      var word = "VaultLock", host = document.getElementById("boot-splash-word");
+      for (var i = 0; i < word.length; i++){
+        var s = document.createElement("span");
+        s.textContent = word[i];
+        s.style.animationDelay = (0.55 + i * 0.045) + "s";
+        host.appendChild(s);
+      }
+    })();
+  </script>
+
+  <div id="root">
+    <div style="height:100%;display:flex;align-items:center;justify-content:center;
+                font-family:'Segoe UI',sans-serif;color:#6C7076;background:#F1F2F6;">
+      Loading VaultLock&hellip;
+    </div>
+  </div>
+
+  <!-- Toast host -->
+  <div id="toast-host"></div>
+
+  <!-- Confirm modal host -->
+  <div id="modal-host"></div>
+
+  <!-- Lightbox host -->
+  <div id="lightbox-host"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

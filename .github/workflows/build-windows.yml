@@ -1,0 +1,54 @@
+name: Build Windows executable
+
+# Runs on an actual cloud Windows machine — no Windows PC of your own needed.
+#
+# Triggers on:
+#   - every push of a version tag like v1.0.0 (also creates a GitHub Release
+#     with the exe attached, ready for your download page to link to)
+#   - manual runs from the Actions tab ("Run workflow" button)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build with PyInstaller
+        run: pyinstaller vaultlock.spec
+
+      - name: Zip the build output
+        run: Compress-Archive -Path dist\VaultLock\* -DestinationPath VaultLock-windows.zip
+        shell: pwsh
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: VaultLock-windows
+          path: VaultLock-windows.zip
+
+      - name: Attach to GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: VaultLock-windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
