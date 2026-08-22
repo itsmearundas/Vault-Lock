@@ -9,14 +9,19 @@
      with zero dependency on style.css having finished loading/parsing
      first. It is entirely self-contained: nothing here is read by, or
      shares state with, app.js's own render()/mount() cycle, so it can't
-     interfere with (or be broken by) any app logic. -->
+     interfere with (or be broken by) any app logic.
+
+     Palette: orange-on-black "neural link" theme, matching the persistent
+     #neural-bg canvas below and the dark auth-card styling in style.css —
+     the boot splash, home, setup and login screens are meant to read as
+     one continuous surface, not four separate pages. -->
 <style>
   #boot-splash{
     position:fixed; inset:0; z-index:9999;
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
     background:
-      radial-gradient(60% 55% at 50% 42%, rgba(61,90,254,.20), rgba(61,90,254,0) 70%),
-      linear-gradient(160deg, #0A0A0C 0%, #17181D 55%, #0A0A0C 100%);
+      radial-gradient(60% 55% at 50% 42%, rgba(255,106,0,.22), rgba(255,106,0,0) 70%),
+      linear-gradient(160deg, #150C07 0%, #0A0603 55%, #060402 100%);
     font-family:"Segoe UI", -apple-system, "Inter", "Helvetica Neue", Arial, sans-serif;
     animation: splash-in .5s ease-out both;
   }
@@ -26,7 +31,7 @@
 
   #boot-splash .glow-ring{
     position:absolute; width:260px; height:260px; border-radius:50%;
-    background:radial-gradient(circle, rgba(61,90,254,.35), rgba(61,90,254,0) 68%);
+    background:radial-gradient(circle, rgba(255,106,0,.32), rgba(255,106,0,0) 68%);
     animation: glow-pulse 2.4s ease-in-out infinite;
   }
   @keyframes glow-pulse{
@@ -34,8 +39,50 @@
     50%{ opacity:1; transform:scale(1.08); }
   }
 
+  /* ── Neural link — establishing connection ──────────────────────────
+     Six lines fire in from the edges toward the lock and a small "relay"
+     pulse travels each one inward, then the whole rig fades once the
+     link reads as "connected" and the lock finishes closing. This is the
+     literal "neural link" moment the rest of the intro/lock animation
+     builds on. */
+  #boot-splash .neural-link{ position:absolute; width:320px; height:320px; overflow:visible; }
+  #boot-splash .neural-link{ animation: nl-fade-out .5s ease-in .95s both; }
+  @keyframes nl-fade-out{ to{ opacity:0; } }
+  #boot-splash .nl-path{
+    fill:none; stroke:url(#nl-grad); stroke-width:1.4; stroke-linecap:round;
+    stroke-dasharray:150; stroke-dashoffset:150;
+    animation: nl-draw .55s cubic-bezier(.3,.6,.3,1) both;
+  }
+  #boot-splash .nl-path.p1{ animation-delay:.02s; } #boot-splash .nl-path.p2{ animation-delay:.08s; }
+  #boot-splash .nl-path.p3{ animation-delay:.00s; } #boot-splash .nl-path.p4{ animation-delay:.10s; }
+  #boot-splash .nl-path.p5{ animation-delay:.05s; } #boot-splash .nl-path.p6{ animation-delay:.14s; }
+  @keyframes nl-draw{ to{ stroke-dashoffset:0; } }
+  #boot-splash .nl-node{ fill:#FFB066; opacity:.9; }
+  #boot-splash .nl-dot{ fill:#FFE3C2; filter:drop-shadow(0 0 4px #FF8A2E); }
+  #boot-splash .nl-dot.d1{ animation: nl-move-1 .5s cubic-bezier(.3,.6,.3,1) .35s both; }
+  #boot-splash .nl-dot.d2{ animation: nl-move-2 .5s cubic-bezier(.3,.6,.3,1) .41s both; }
+  #boot-splash .nl-dot.d3{ animation: nl-move-3 .5s cubic-bezier(.3,.6,.3,1) .33s both; }
+  #boot-splash .nl-dot.d4{ animation: nl-move-4 .5s cubic-bezier(.3,.6,.3,1) .43s both; }
+  #boot-splash .nl-dot.d5{ animation: nl-move-5 .5s cubic-bezier(.3,.6,.3,1) .38s both; }
+  #boot-splash .nl-dot.d6{ animation: nl-move-6 .5s cubic-bezier(.3,.6,.3,1) .47s both; }
+  @keyframes nl-move-1{ from{ cx:290px; cy:235px; opacity:1; } to{ cx:160px; cy:160px; opacity:0; } }
+  @keyframes nl-move-2{ from{ cx:160px; cy:310px; opacity:1; } to{ cx:160px; cy:160px; opacity:0; } }
+  @keyframes nl-move-3{ from{ cx:30px;  cy:235px; opacity:1; } to{ cx:160px; cy:160px; opacity:0; } }
+  @keyframes nl-move-4{ from{ cx:30px;  cy:85px;  opacity:1; } to{ cx:160px; cy:160px; opacity:0; } }
+  @keyframes nl-move-5{ from{ cx:160px; cy:10px;  opacity:1; } to{ cx:160px; cy:160px; opacity:0; } }
+  @keyframes nl-move-6{ from{ cx:290px; cy:85px;  opacity:1; } to{ cx:160px; cy:160px; opacity:0; } }
+  #boot-splash .nl-core{
+    fill:none; stroke:#FF8A2E; opacity:0;
+    animation: nl-core-flash .5s ease-out .55s both;
+  }
+  @keyframes nl-core-flash{
+    0%{ opacity:0; stroke-width:1; r:4; }
+    40%{ opacity:.9; stroke-width:2; r:14; }
+    100%{ opacity:0; stroke-width:.5; r:34; }
+  }
+
   #boot-splash .lock-wrap{ position:relative; width:96px; height:96px; }
-  #boot-splash svg{ position:relative; width:96px; height:96px; overflow:visible; }
+  #boot-splash svg.lock-svg{ position:relative; width:96px; height:96px; overflow:visible; }
   #boot-splash .lock-shackle{
     transform-origin: 48px 40px;
     animation: shackle-close .9s cubic-bezier(.2,1.5,.4,1) .15s both;
@@ -55,7 +102,7 @@
   }
   @keyframes keyhole-flash{
     0%{ opacity:0; }
-    35%{ opacity:1; filter:drop-shadow(0 0 6px #3D5AFE); }
+    35%{ opacity:1; filter:drop-shadow(0 0 6px #FF6A00); }
     100%{ opacity:1; filter:drop-shadow(0 0 0 transparent); }
   }
   #boot-splash .lock-sweep{
@@ -70,7 +117,7 @@
   }
 
   #boot-splash .wordmark{
-    display:flex; letter-spacing:.5px; font-size:22px; font-weight:700; color:#F1F2F6;
+    display:flex; letter-spacing:.5px; font-size:22px; font-weight:700; color:#F5EDE6;
   }
   #boot-splash .wordmark span{
     display:inline-block; opacity:0; transform:translateY(6px);
@@ -78,13 +125,118 @@
   }
   @keyframes letter-in{ to{ opacity:1; transform:translateY(0); } }
   #boot-splash .tagline{
-    font-size:12.5px; color:#9AA0A6; letter-spacing:.3px;
+    font-size:12.5px; color:#C9B8AC; letter-spacing:.3px;
     opacity:0; animation: tagline-in .5s ease-out .9s both;
   }
   @keyframes tagline-in{ to{ opacity:1; } }
 </style>
 </head>
-<body>
+<body class="pre-auth">
+  <!-- Ambient neural network — a fixed layer BEHIND #root, so it is never
+       touched when app.js swaps screens (home/setup/login are just cards
+       mounted on top of it). It fades out once state.screen becomes "app"
+       (app.js toggles body.pre-auth) and fades back in on logout/auto-lock,
+       which is what makes the intro -> home -> password-entry sequence
+       read as one continuous page instead of separate screens. -->
+  <div id="neural-bg" aria-hidden="true">
+    <canvas id="neural-canvas"></canvas>
+  </div>
+  <script>
+    // Self-contained ambient network animation: drifting nodes, proximity
+    // links, and the occasional traveling "signal" between them. No
+    // dependency on app.js — it only reads document.body's pre-auth class.
+    (function(){
+      var canvas = document.getElementById("neural-canvas");
+      var ctx = canvas.getContext("2d");
+      var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+      var nodes = [], pulses = [];
+      var ORANGE = [255, 122, 43];
+
+      function resize(){
+        W = window.innerWidth; H = window.innerHeight;
+        canvas.width = W * DPR; canvas.height = H * DPR;
+        canvas.style.width = W + "px"; canvas.style.height = H + "px";
+        ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        var count = Math.max(22, Math.min(56, Math.round((W * H) / 26000)));
+        nodes = [];
+        for (var i = 0; i < count; i++){
+          nodes.push({
+            x: Math.random() * W, y: Math.random() * H,
+            vx: (Math.random() - 0.5) * 0.18, vy: (Math.random() - 0.5) * 0.18,
+            r: 1.2 + Math.random() * 1.6
+          });
+        }
+      }
+      window.addEventListener("resize", resize);
+      resize();
+
+      var MAX_DIST = 150;
+      var lastPulse = 0;
+
+      function maybeSpawnPulse(now, edges){
+        if (now - lastPulse < 550 || !edges.length) return;
+        lastPulse = now;
+        if (pulses.length > 9) return;
+        var e = edges[(Math.random() * edges.length) | 0];
+        pulses.push({ a: e.a, b: e.b, t: 0, speed: 0.9 + Math.random() * 0.5 });
+      }
+
+      function frame(now){
+        requestAnimationFrame(frame);
+        if (document.hidden) return;
+        if (!document.body.classList.contains("pre-auth")) { ctx.clearRect(0,0,W,H); return; }
+        ctx.clearRect(0, 0, W, H);
+
+        for (var i = 0; i < nodes.length; i++){
+          var n = nodes[i];
+          n.x += n.vx; n.y += n.vy;
+          if (n.x < 0 || n.x > W) n.vx *= -1;
+          if (n.y < 0 || n.y > H) n.vy *= -1;
+        }
+
+        var edges = [];
+        for (var i = 0; i < nodes.length; i++){
+          for (var j = i + 1; j < nodes.length; j++){
+            var a = nodes[i], b = nodes[j];
+            var dx = a.x - b.x, dy = a.y - b.y;
+            var dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < MAX_DIST){
+              var alpha = (1 - dist / MAX_DIST) * 0.35;
+              ctx.strokeStyle = "rgba(" + ORANGE.join(",") + "," + alpha.toFixed(3) + ")";
+              ctx.lineWidth = 1;
+              ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+              edges.push({ a: a, b: b });
+            }
+          }
+        }
+        maybeSpawnPulse(now || 0, edges);
+
+        for (var i = 0; i < nodes.length; i++){
+          var n = nodes[i];
+          ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI*2);
+          ctx.fillStyle = "rgba(255,178,110,.55)";
+          ctx.fill();
+        }
+
+        for (var i = pulses.length - 1; i >= 0; i--){
+          var p = pulses[i];
+          p.t += 0.016 * p.speed;
+          if (p.t >= 1){ pulses.splice(i, 1); continue; }
+          var x = p.a.x + (p.b.x - p.a.x) * p.t;
+          var y = p.a.y + (p.b.y - p.a.y) * p.t;
+          var fade = Math.sin(Math.PI * p.t);
+          ctx.beginPath(); ctx.arc(x, y, 2.2, 0, Math.PI*2);
+          ctx.fillStyle = "rgba(255,227,194," + fade.toFixed(3) + ")";
+          ctx.shadowColor = "rgba(255,122,43,.9)";
+          ctx.shadowBlur = 8;
+          ctx.fill();
+          ctx.shadowBlur = 0;
+        }
+      }
+      requestAnimationFrame(frame);
+    })();
+  </script>
+
   <!-- Launch animation: plays the instant the window opens, independent of
        the pywebview JS bridge coming online. app.js fades and removes this
        element (adding class "leaving", then deleting the node) the moment
@@ -95,20 +247,48 @@
        overlay sitting on top of #root, not a gate the app waits on. -->
   <div id="boot-splash" aria-hidden="true">
     <div class="glow-ring"></div>
+    <svg class="neural-link" viewBox="0 0 320 320">
+      <defs>
+        <linearGradient id="nl-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#FF6A00" stop-opacity="0"/>
+          <stop offset="55%" stop-color="#FF8A2E" stop-opacity=".85"/>
+          <stop offset="100%" stop-color="#FFC98A" stop-opacity="1"/>
+        </linearGradient>
+      </defs>
+      <line class="nl-path p1" x1="290" y1="235" x2="160" y2="160"/>
+      <line class="nl-path p2" x1="160" y1="310" x2="160" y2="160"/>
+      <line class="nl-path p3" x1="30"  y1="235" x2="160" y2="160"/>
+      <line class="nl-path p4" x1="30"  y1="85"  x2="160" y2="160"/>
+      <line class="nl-path p5" x1="160" y1="10"  x2="160" y2="160"/>
+      <line class="nl-path p6" x1="290" y1="85"  x2="160" y2="160"/>
+      <circle class="nl-node" cx="290" cy="235" r="2.5"/>
+      <circle class="nl-node" cx="160" cy="310" r="2.5"/>
+      <circle class="nl-node" cx="30"  cy="235" r="2.5"/>
+      <circle class="nl-node" cx="30"  cy="85"  r="2.5"/>
+      <circle class="nl-node" cx="160" cy="10"  r="2.5"/>
+      <circle class="nl-node" cx="290" cy="85"  r="2.5"/>
+      <circle class="nl-dot d1" r="3"/>
+      <circle class="nl-dot d2" r="3"/>
+      <circle class="nl-dot d3" r="3"/>
+      <circle class="nl-dot d4" r="3"/>
+      <circle class="nl-dot d5" r="3"/>
+      <circle class="nl-dot d6" r="3"/>
+      <circle class="nl-core" cx="160" cy="160" r="4"/>
+    </svg>
     <div class="lock-wrap">
-      <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg class="lock-svg" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
         <g class="lock-shackle">
           <path d="M30 44V32C30 20.9543 38.9543 12 50 12V12C61.0457 12 70 20.9543 70 32V44"
-                stroke="#3D5AFE" stroke-width="7" stroke-linecap="round"/>
+                stroke="#FF6A00" stroke-width="7" stroke-linecap="round"/>
         </g>
         <g class="lock-body">
-          <rect x="20" y="42" width="56" height="42" rx="10" fill="#17181D" stroke="#3D5AFE" stroke-width="2.5"/>
+          <rect x="20" y="42" width="56" height="42" rx="10" fill="#150C07" stroke="#FF6A00" stroke-width="2.5"/>
         </g>
-        <circle class="lock-keyhole" cx="48" cy="60" r="5.5" fill="#3D5AFE"/>
-        <rect class="lock-keyhole" x="45.3" y="60" width="5.4" height="12" rx="2.4" fill="#3D5AFE"/>
+        <circle class="lock-keyhole" cx="48" cy="60" r="5.5" fill="#FF6A00"/>
+        <rect class="lock-keyhole" x="45.3" y="60" width="5.4" height="12" rx="2.4" fill="#FF6A00"/>
         <clipPath id="sweep-clip"><rect x="20" y="42" width="56" height="42" rx="10"/></clipPath>
         <g clip-path="url(#sweep-clip)">
-          <rect class="lock-sweep" x="14" y="38" width="14" height="52" fill="rgba(255,255,255,.16)" transform="skewX(-18)"/>
+          <rect class="lock-sweep" x="14" y="38" width="14" height="52" fill="rgba(255,255,255,.18)" transform="skewX(-18)"/>
         </g>
       </svg>
     </div>
@@ -132,7 +312,7 @@
 
   <div id="root">
     <div style="height:100%;display:flex;align-items:center;justify-content:center;
-                font-family:'Segoe UI',sans-serif;color:#6C7076;background:#F1F2F6;">
+                font-family:'Segoe UI',sans-serif;color:#C9B8AC;background:transparent;">
       Loading VaultLock&hellip;
     </div>
   </div>

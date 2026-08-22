@@ -125,10 +125,32 @@ class Handler(BaseHTTPRequestHandler):
         if origin == "null":
             self.send_header("Access-Control-Allow-Origin", "null")
 
-    def _real_ext(self, base, dek, rel, target):
-        """Token filenames on disk have no real extension — look it up via
-        the folder's decrypted manifest. Legacy (pre-manifest) folders still
-        have real names on disk, so fall back to the raw suffix for those."""
+    def _real_ext(self, engine, dek, vid, rel, target):
+        """Token filenames on disk have no real extension — look it up
+        instead of trusting the filesystem name.
+
+        A ROOT-level single file has no manifest of its own (only folders
+        get an `_index.enc`) — its real name/extension lives in the
+        vault's top-level meta.json, keyed by vid. Nested files (inside a
+        locked folder) go through that folder's decrypted manifest.
+        Previously this always tried the manifest path first even for
+        root files, where `base` is a plain file — `base / "_index.enc"`
+        never exists, so it silently fell through to `target.suffix`,
+        and `target` there is just the vid token itself (no dot in it),
+        so root-level media was *always* served as
+        application/octet-stream, regardless of the item's real
+        extension or whether it had ever been renamed."""
+        if not rel:
+            try:
+                meta = core.load_meta(getattr(engine, "is_decoy", False), dek)
+                info = meta.get("files", {}).get(vid)
+                if info and info.get("type") == "file":
+                    ext = info.get("ext") or Path(info.get("original_name", "")).suffix
+                    return ext.lower()
+            except Exception:
+                pass
+            return target.suffix.lower()
+        base = engine.vault_path(vid)
         manifest = core.load_tree_manifest(base, dek)
         if manifest is not None:
             node = core.manifest_node_at(manifest, rel)
@@ -141,7 +163,17 @@ class Handler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(data)))
-        self.send_header("Cache-Control", "no-store")
+        # Belt-and-braces against stale thumbnails: some WebView2/Windows
+        # HTTP cache configurations have been seen to hang onto a response
+        # a little longer than a bare "no-store" implies, especially for
+        # images. Sending all three legacy+modern no-cache directives
+        # closes that gap; combined with the frontend's cache-busting query
+        # param (see versionedThumbUrl in app.js) this is fully redundant
+        # in the normal case, but cheap insurance against the "have to
+        # relaunch the app to see the new thumbnail" symptom.
+        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
         # See _cors_headers() — scoped to the app's own file:// origin
         # instead of a wildcard (§2 fix).
         self._cors_headers()
@@ -192,7 +224,10 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(length))
         if status == 206:
             self.send_header("Content-Range", f"bytes {start}-{end}/{size}")
-        self.send_header("Cache-Control", "no-store")
+        # See _send_bytes() above for why all three headers are sent.
+        self.send_header("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+        self.send_header("Pragma", "no-cache")
+        self.send_header("Expires", "0")
         self._cors_headers()
         self.end_headers()
 
@@ -267,7 +302,7 @@ class Handler(BaseHTTPRequestHandler):
                     return self._send_404()
                 if not target.exists() or target.is_dir():
                     return self._send_404()
-                ext = self._real_ext(base, dek, rel, target)
+                ext = self._real_ext(engine, dek, vid, rel, target)
                 ctype = ("video/mp4" if ext in VID_EXT else
                           "image/jpeg" if ext in IMG_EXT else
                           "application/octet-stream")
@@ -293,7 +328,7 @@ class Handler(BaseHTTPRequestHandler):
                 # at its own real, uncropped aspect ratio.
                 data = None
                 if data is None:
-                    ext = self._real_ext(base, dek, rel, target)
+                    ext = self._real_ext(engine, dek, vid, rel, target)
                     try:
                         if PIL_OK and ext in IMG_EXT:
                             data = _image_jpeg_from_encrypted(target, dek)

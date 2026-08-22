@@ -1117,7 +1117,13 @@ def make_video_thumb(src_plain_path, vid, dek):
 
 def _make_thumb_from_encrypted(enc_src, vid, dek, is_video):
     """Decrypts enc_src into a private temp file just long enough to build
-    a thumbnail from it, then removes the temp file either way."""
+    a thumbnail from it, then removes the temp file either way. Runs on a
+    background daemon thread (see callers), so a source file that gets
+    moved/deleted by a second operation racing with this one is expected,
+    not exceptional — this silently skips the thumbnail rather than letting
+    an uncaught exception surface only as a stray traceback on stderr; the
+    thumbnail will simply be (re)built the next time something regenerates
+    it (e.g. the folder is opened again, or the item is touched again)."""
     import tempfile
     suffix = Path(enc_src).suffix or (".mp4" if is_video else ".jpg")
     fd, tmp_path = tempfile.mkstemp(suffix=suffix, dir=str(temp_dir()))
@@ -1128,6 +1134,8 @@ def _make_thumb_from_encrypted(enc_src, vid, dek, is_video):
             make_video_thumb(tmp_path, vid, dek)
         else:
             make_thumb(tmp_path, vid, dek)
+    except (FileNotFoundError, OSError):
+        pass
     finally:
         try: os.remove(tmp_path)
         except Exception: pass
@@ -2469,7 +2477,21 @@ class VaultEngine:
     # ── rename ───────────────────────────────────────────────────────────
     def rename_item(self, vid, new_name):
         """Renames a root-level vault item. Only the display name changes —
-        the encrypted bytes stay exactly where they are on disk."""
+        the encrypted bytes stay exactly where they are on disk.
+
+        For FILES (not folders), the extension is load-bearing, not
+        cosmetic: file_cat()/file_icon(), the in-vault viewer's
+        image-vs-video-vs-other detection, and media_server's Content-Type
+        all derive entirely from the suffix on this stored name. If a
+        rename drops it (e.g. the dialog pre-fills the full "photo.jpg"
+        and the user selects-all and retypes just "vacation photos"), the
+        item silently becomes uncategorizable — can't be opened in the
+        vault, and a later "Restore to folder" writes it back to disk with
+        no extension at all, so the OS no longer knows what app should
+        open it. Guard against that: if the item had an extension before
+        and the new name doesn't carry one of its own, keep the old one
+        instead of discarding it. An explicit new extension the user
+        actually typed is still respected."""
         if not self.dek:
             return False, "Vault is locked (no encryption key available)"
         new_name = (new_name or "").strip()
@@ -2480,16 +2502,24 @@ class VaultEngine:
             if vid not in meta["files"]:
                 return False, "Not found"
             info = meta["files"][vid]
-            info["original_name"] = new_name
             if info.get("type") == "file":
+                old_ext = Path(info.get("original_name", "")).suffix
+                if old_ext and not Path(new_name).suffix:
+                    new_name = new_name + old_ext
                 info["ext"] = Path(new_name).suffix.lower()
+            info["original_name"] = new_name
             save_meta(meta, self.is_decoy, self.dek)
             return True, new_name
         except Exception as e:
             return False, str(e)
 
     def rename_nested_item(self, vid, rel, new_name):
-        """Renames a file/sub-folder living inside an already locked folder."""
+        """Renames a file/sub-folder living inside an already locked folder.
+
+        Same extension guard as rename_item() above, and for the same
+        reason: nested files are looked up in their folder's manifest by
+        name.suffix too (find_preview, _real_ext, file_cat), so losing the
+        extension here breaks previews/opening exactly the same way."""
         if not self.dek:
             return False, "Vault is locked (no encryption key available)"
         new_name = (new_name or "").strip()
@@ -2509,6 +2539,10 @@ class VaultEngine:
             parent, last, node = self._locate_nested(manifest, rel)
             if node is None:
                 return False, "Item not found"
+            if node.get("type") == "file":
+                old_ext = Path(node.get("name", "")).suffix
+                if old_ext and not Path(new_name).suffix:
+                    new_name = new_name + old_ext
             node["name"] = new_name
             save_tree_manifest(base, manifest, self.dek)
             return True, new_name
@@ -3105,7 +3139,19 @@ class VaultEngine:
                 if src_vid not in meta["files"]:
                     return False, "Source not found"
                 name = meta["files"][src_vid]["original_name"]
-                item_type = meta["files"][src_vid]["type"]
+                # Root-level meta entries use "folder"/"file"; everywhere else
+                # in this function (and in every nested manifest) a directory
+                # is "dir". Normalizing here means the "dir" checks below
+                # behave identically whether the source came from the vault
+                # root or from inside a locked folder — without it, a
+                # root-level folder used as the move/copy source takes the
+                # "file" code path by accident: shutil.copy2() on a directory
+                # raises immediately (copy), and a plain move silently writes
+                # a "file"-typed manifest entry with a directory sitting
+                # where its bytes should be (move) — either way the folder
+                # (and everything inside it) becomes unreachable afterward.
+                src_type = meta["files"][src_vid]["type"]
+                item_type = "dir" if src_type == "folder" else src_type
                 src_disk = self.vault_dir / src_vid
 
             # ---- guards ----
@@ -3131,13 +3177,35 @@ class VaultEngine:
                         sub_manifest = load_tree_manifest(dest_disk, self.dek) or {"type": "dir", "children": {}}
                     save_tree_manifest(dest_disk, sub_manifest, self.dek)
                     size = manifest_dir_size(sub_manifest)
+                    # Root-level items are shown via /thumb/<vid>, which only
+                    # ever reads a pre-generated thumb_dir()/<vid>.jpg cache —
+                    # unlike nested items, it has no on-the-fly fallback. This
+                    # cache is normally built by lock_item() at lock time; an
+                    # item arriving at the root via move/copy needs the same
+                    # treatment here, or its thumbnail 404s forever.
+                    threading.Thread(target=self._thumb_folder, args=(dest_disk, new_vid), daemon=True).start()
                 else:
                     dest_disk.parent.mkdir(parents=True, exist_ok=True)
                     if copy: shutil.copy2(str(src_disk), str(dest_disk))
                     else: shutil.move(str(src_disk), str(dest_disk))
                     size = max(0, dest_disk.stat().st_size - ENC_OVERHEAD)
+                    ext = Path(name).suffix.lower()
+                    if ext in IMG_EXT:
+                        threading.Thread(target=_make_thumb_from_encrypted, args=(dest_disk, new_vid, self.dek, False), daemon=True).start()
+                    elif ext in VID_EXT:
+                        threading.Thread(target=_make_thumb_from_encrypted, args=(dest_disk, new_vid, self.dek, True), daemon=True).start()
                 meta["files"][new_vid] = {
-                    "original_path": None, "original_name": name, "type": item_type,
+                    "original_path": None, "original_name": name,
+                    # Reverse of the normalization done when reading a
+                    # root-level source above: root-level meta entries use
+                    # "folder"/"file", never "dir" — "dir" is only the
+                    # nested-manifest spelling. Writing "dir" straight
+                    # through here (instead of converting back) is exactly
+                    # the bug that made a moved/copied folder look like a
+                    # broken file everywhere the root listing checks
+                    # `type == "folder"` (icon, click-to-open, whether it
+                    # even counts as a folder for other features).
+                    "type": ("folder" if item_type == "dir" else item_type),
                     "size": size, "locked_at": (node or {}).get("locked_at", datetime.now().isoformat()),
                     "ext": Path(name).suffix.lower() if item_type == "file" else "",
                     "virtual": True,

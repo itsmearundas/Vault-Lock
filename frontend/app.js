@@ -21,6 +21,7 @@
     prefs: { application: {}, vault: {}, viewer: {}, shortcuts: {} },
     hasVault: false,           // whether a vault already exists on this machine
     entering: false,           // the vault-opening animation is playing
+    leaving: false,            // the vault-closing (logout) animation is playing
     justEntered: false,        // master vault: content stays hidden until the person scrolls
     sortMode: null,            // resolved per-folder sort {mode,dir} for the current view
     dragging: false,           // a manual-reorder drag is in progress
@@ -34,7 +35,7 @@
     faceScanRunning: false,    // a "Scan for faces" job is currently in flight
     currentAlbum: null,        // {vid, name, origin} of the album/face-group currently open in the albumDetail view — origin is "albums" or "faceGroups", used only to decide where the Back button returns to
     albumDetailItems: [],      // flat, whole-vault-referenced items collected into currentAlbum
-    thumbVersion: {},          // itemKey -> bump counter, forces a fresh thumbnail fetch right after a crop/collage edit
+    thumbEpoch: 0,             // global bump counter, forces every visible thumbnail to refetch right after any crop/collage edit
     notesList: [],             // "Your Text" — array of {id, title, text, color, createdAt, updatedAt}, loaded from vault prefs
     notesSelected: new Set(),  // ids of text cards currently selected in the notes view
     notesSort: { mode: "created", dir: "desc" }, // mode: "created" | "name"
@@ -63,24 +64,26 @@
   }
   // Thumbnail URLs are stable (e.g. /thumb/{vid}) so the browser happily
   // caches them — great for normal browsing, but it means that right after
-  // cropping/recomposing a thumbnail the tile kept showing the OLD cached
-  // image until the person left the folder and came back (which just
-  // happened to be enough of a gap for the cache to be reconsidered). The
-  // backend file is updated immediately; only the displayed URL was stale.
-  // Bumping a per-item counter and appending it as a query param forces a
-  // fresh fetch the moment an edit succeeds, without cache-busting every
-  // thumbnail on every render (which would refetch images unnecessarily).
-  function bumpThumbVersion(vid, rel) {
-    const key = rel ? `${vid}::${rel}` : vid;
-    state.thumbVersion[key] = (state.thumbVersion[key] || 0) + 1;
+  // cropping/recomposing a thumbnail a tile could keep showing the OLD
+  // cached image until the person left the folder and came back, or in
+  // some views (dashboard mini-tiles, albums, face groups, duplicates)
+  // didn't refresh until a full app relaunch. The backend file is updated
+  // immediately; only the displayed <img>/tile URL was stale, because an
+  // unchanged src string means the browser never re-requests it at all.
+  //
+  // Fix: a single GLOBAL epoch counter, bumped on every thumbnail-changing
+  // action, is appended to *every* thumbnail URL on every render — not
+  // just the one folder that changed. That guarantees every tile currently
+  // on screen, in every view, force-refetches the moment any thumbnail
+  // edit succeeds. It costs a few redundant refetches right after an edit,
+  // which is a small price for "it just always shows the new thumbnail."
+  function bumpThumbVersion() {
+    state.thumbEpoch = (state.thumbEpoch || 0) + 1;
   }
   function versionedThumbUrl(it) {
     if (!it || !it.thumb_url) return it ? it.thumb_url : undefined;
-    const key = it.rel ? `${it.vid}::${it.rel}` : it.vid;
-    const v = state.thumbVersion[key];
-    if (!v) return it.thumb_url;
     const sep = it.thumb_url.includes("?") ? "&" : "?";
-    return `${it.thumb_url}${sep}v=${v}`;
+    return `${it.thumb_url}${sep}tv=${state.thumbEpoch || 0}`;
   }
 
   // Background presets offered in Settings \u2192 Appearance.
@@ -316,7 +319,19 @@
       backdrop.appendChild(box);
       backdrop.addEventListener("click", (e) => { if (e.target === backdrop) { close(); resolve(input ? null : false); } });
       host.appendChild(backdrop);
-      if (inputEl) setTimeout(() => { inputEl.focus(); inputEl.select(); }, 30);
+      if (inputEl) setTimeout(() => {
+        inputEl.focus();
+        // Renaming a file pre-selects only the name stem (like Explorer/
+        // Finder) so a normal "select-all, retype" edit can't silently
+        // wipe the extension — losing it breaks how the item is
+        // categorized (image/video/other) and, if later restored to
+        // disk, leaves a file with no extension at all.
+        if (typeof input.selectStart === "number" && typeof input.selectEnd === "number") {
+          inputEl.setSelectionRange(input.selectStart, input.selectEnd);
+        } else {
+          inputEl.select();
+        }
+      }, 30);
       function close() { backdrop.remove(); }
     });
   }
@@ -1087,6 +1102,14 @@
     if (!(state.screen === "app" && state.covered) && _coverTimer) {
       clearInterval(_coverTimer); _coverTimer = null;
     }
+    // The neural background (index.html's #neural-bg) lives outside #root,
+    // so it survives every mount() below untouched — this is the one line
+    // that decides whether it's showing. Kept centralized here (rather than
+    // sprinkled at each state.screen assignment) so every path that can
+    // land on/off these screens — home, setup, login, auto-lock, logout —
+    // gets it right automatically.
+    document.body.classList.toggle("pre-auth",
+      state.screen === "home" || state.screen === "setup" || state.screen === "login");
     if (state.screen === "app" && state.covered) { mount(renderCoverOverlay()); return; }
     if (state.screen === "home") mount(renderHome());
     else if (state.screen === "setup") mount(renderSetup());
@@ -1096,6 +1119,8 @@
       if (state.privacyScreenOn) appEl.appendChild(renderPrivacyScreenOverlay());
       if (state.entering) {
         mount(h("div", { class: "vault-enter-host" }, appEl, renderVaultEnterAnimation()));
+      } else if (state.leaving) {
+        mount(h("div", { class: "vault-enter-host" }, appEl, renderVaultLeaveAnimation()));
       } else {
         mount(appEl);
       }
@@ -1142,11 +1167,10 @@
   // ════════════════════════════════════════════════════════════════════════
   function renderHome() {
     const wrap = h("div", { class: "auth-wrap screen-fade" });
-    const btn = h("button", { class: "btn btn-primary btn-block home-cta" },
+    const btn = h("button", { class: "btn btn-neural btn-block home-cta" },
       state.hasVault ? "Log In" : "Get Started");
     btn.addEventListener("click", () => {
-      state.screen = state.hasVault ? "login" : "setup";
-      render();
+      goToScreen(state.hasVault ? "login" : "setup", btn);
     });
     const card = h("div", { class: "auth-card home-card" },
       h("div", { class: "auth-logo home-logo" }, "\u{1F512}"),
@@ -1163,7 +1187,27 @@
   }
 
   // ════════════════════════════════════════════════════════════════════════
-  // VAULT-OPENING ANIMATION — plays once right after a successful login,
+  // SCREEN HAND-OFF — used between the pre-vault screens (home -> setup /
+  // login -> setup's "vault created" step) so moving forward reads as one
+  // continuous surface reacting to you, not a page swap: the outgoing card
+  // sinks away while a small spark of light fires from wherever you clicked
+  // up into the shared #neural-bg behind it.
+  // ════════════════════════════════════════════════════════════════════════
+  function goToScreen(nextScreen, originEl) {
+    const card = document.querySelector(".auth-card");
+    if (originEl) {
+      const r = originEl.getBoundingClientRect();
+      const pulse = document.createElement("div");
+      pulse.className = "neural-pulse";
+      pulse.style.left = (r.left + r.width / 2) + "px";
+      pulse.style.top = r.top + "px";
+      document.body.appendChild(pulse);
+      pulse.addEventListener("animationend", () => pulse.remove());
+    }
+    if (card) card.classList.add("card-leaving");
+    setTimeout(() => { state.screen = nextScreen; render(); }, card ? 220 : 0);
+  }
+
   // over the top of the already-loaded app, then the doors slide away.
   // The doors themselves show that account's own background (master and
   // decoy can each have a different one), split across the two halves so
@@ -1220,6 +1264,86 @@
     setTimeout(() => { state.entering = false; render(); }, 1650);
 
     return overlay;
+  }
+
+  // ════════════════════════════════════════════════════════════════════════
+  // LOGOUT — the exact reverse of the vault-opening animation above, reusing
+  // the same door/center CSS states rather than any new ones: it mounts
+  // already in the "opening" (doors-apart, center hidden) state, then on
+  // the very next frame drops that class, which transitions the doors shut
+  // and the lock/text back into view — same transition curves, just played
+  // backwards. Once the doors are fully closed over the screen, the actual
+  // logout happens underneath (invisibly) and the app hands off to the
+  // Home screen, so the swap reads as one continuous close rather than a
+  // hard cut.
+  // ════════════════════════════════════════════════════════════════════════
+  function renderVaultLeaveAnimation() {
+    const overlay = h("div", { class: "vault-enter-overlay opening" });
+    const doorL = h("div", { class: "vault-enter-door left" });
+    const doorR = h("div", { class: "vault-enter-door right" });
+
+    const bg = doorBackgroundCss();
+    if (bg) {
+      [doorL, doorR].forEach(d => {
+        d.style.backgroundImage = bg.image;
+        d.style.backgroundSize = "200% 100%";
+        d.style.backgroundRepeat = "no-repeat";
+        d.classList.add("has-bg");
+      });
+      doorL.style.backgroundPosition = "left center";
+      doorR.style.backgroundPosition = "right center";
+    }
+
+    const lock = h("div", { class: "vault-enter-lock" }, "\u{1F513}");
+    const ring = h("div", { class: "vault-enter-ring" });
+    const text = h("div", { class: "vault-enter-text" }, "Locking your vault\u2026");
+    const center = h("div", { class: "vault-enter-center" }, ring, lock, text);
+    overlay.appendChild(doorL);
+    overlay.appendChild(doorR);
+    overlay.appendChild(center);
+
+    // Force the doors-apart state to actually paint before dropping it —
+    // otherwise the browser can coalesce both class changes into a single
+    // frame and skip the transition entirely.
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => { overlay.classList.remove("opening"); });
+    });
+
+    setTimeout(() => {
+      lock.textContent = "\u{1F512}";
+      lock.classList.add("pop");
+      text.textContent = "See you soon";
+    }, 480);
+    setTimeout(() => { finishLogout(); }, 900);
+
+    return overlay;
+  }
+
+  async function doLogout() {
+    const ok = await modal({
+      title: "Log out?",
+      body: "You'll land back on the login screen \u2014 handy for switching to a different password.",
+      buttons: [
+        { label: "Cancel", value: false, variant: "btn-ghost" },
+        { label: "Log Out", value: true, variant: "btn-primary" },
+      ],
+    });
+    if (!ok) return;
+    clearAutoLockTimer();
+    state.leaving = true;
+    render();
+  }
+
+  async function finishLogout() {
+    await api.lock_out();
+    mediaToken = ""; // the old token is now invalid server-side too — stop using it
+    // Clear the previous account's custom background BEFORE landing on
+    // Home — body.custom-bg otherwise keeps the just-logged-out account's
+    // image/gradient applied underneath the auth screens.
+    applyBackground(null);
+    state.screen = "home"; state.leaving = false; state.covered = false;
+    state.isDecoy = false; state.justEntered = false;
+    render();
   }
 
   // ════════════════════════════════════════════════════════════════════════
@@ -1375,7 +1499,7 @@
       locFreeEl.textContent = `${info.free_h} free on this drive`;
     });
 
-    const createBtn = h("button", { class: "btn btn-primary btn-block" }, "Create Vault");
+    const createBtn = h("button", { class: "btn btn-neural btn-block" }, "Create Vault");
     createBtn.addEventListener("click", async () => {
       errBox.classList.remove("show");
       const master = fMaster._input.value, confirm = fConfirm._input.value;
@@ -1388,8 +1512,7 @@
       if (!res.ok) return showErr(res.error);
       toast("Vault created", "success");
       state.hasVault = true;
-      state.screen = "login";
-      render();
+      goToScreen("login", createBtn);
     });
     function showErr(msg) { errBox.textContent = msg; errBox.classList.add("show"); }
 
@@ -1423,7 +1546,7 @@
     const fPw = pwField("lg-pw", "Password");
     fPw._input.addEventListener("keydown", (e) => { if (e.key === "Enter") doLogin(); });
 
-    const btn = h("button", { class: "btn btn-primary btn-block" }, "Unlock Vault");
+    const btn = h("button", { class: "btn btn-neural btn-block" }, "Unlock Vault");
     btn.addEventListener("click", doLogin);
 
     async function doLogin() {
@@ -1552,6 +1675,13 @@
     if (amt >= 0) { r += (255 - r) * amt; g += (255 - g) * amt; b += (255 - b) * amt; }
     else { r *= (1 + amt); g *= (1 + amt); b *= (1 + amt); }
     return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`;
+  }
+  // Same output as shadeHex/a raw hex, but with an alpha channel — used for
+  // the note-card glass effect, where the header/body tints need to stay
+  // see-through over their own backdrop-filter blur rather than fully opaque.
+  function toGlassRgba(colorStr, alpha) {
+    const nums = colorStr.match(/\d+/g).map(Number);
+    return `rgba(${nums[0]},${nums[1]},${nums[2]},${alpha})`;
   }
   // Converts a hue (0-360) picked off the gradient bar into a hex color,
   // fixed saturation/lightness so every pick lands somewhere vivid and
@@ -1756,8 +1886,11 @@
 
   function renderNoteCard(note) {
     const color = note.color || NOTE_COLORS[0];
-    const dark = shadeHex(color, -0.35);   // buttons / header — dark shade of the note's color
-    const light = shadeHex(color, 0.88);   // text box — light tint of the *same* color
+    const dark = shadeHex(color, -0.35);   // buttons — dark shade of the note's color, kept opaque so icons stay legible
+    const light = shadeHex(color, 0.88);   // base hue for the body tint
+    const headerGlass = toGlassRgba(dark, 0.68);   // header — translucent so its own blur reads as glass
+    const bodyGlass = toGlassRgba(light, 0.46);    // body — lighter/more see-through, same idea
+    const borderGlass = toGlassRgba(shadeHex(color, 0), 0.55);
     const selected = state.notesSelected.has(note.id);
     const copyBtn = h("button", {
       class: "note-btn", style: `--nb:${dark};`, title: "Copy text",
@@ -1775,19 +1908,20 @@
       class: "note-btn", style: `--nb:${dark};`, title: "Delete",
       onclick: () => onDeleteNote(note)
     }, "\u{1F5D1}\uFE0F");
-    const header = h("div", { class: "note-card-hdr", style: `background:${dark};` },
+    const header = h("div", { class: "note-card-hdr", style: `background:${headerGlass};` },
       h("div", { class: "note-card-title-wrap" },
         h("div", { class: "note-card-title" }, note.title || "Untitled"),
         h("div", { class: "note-card-date" }, noteDateLabel(note.createdAt)),
       ),
       h("div", { class: "note-card-actions" }, copyBtn, selBtn, editBtn, delBtn)
     );
-    const body = h("div", { class: "note-card-body", style: `background:${light};` },
+    const body = h("div", { class: "note-card-body", style: `background:${bodyGlass};`, title: "Click to view full text" },
       note.text
         ? h("div", { class: "note-card-text" }, note.text)
         : h("div", { class: "note-card-text note-card-empty" }, "(empty)")
     );
-    return h("div", { class: `note-card${selected ? " selected" : ""}`, style: `border-color:${color};` }, header, body);
+    body.addEventListener("click", () => onEditNote(note));
+    return h("div", { class: `note-card${selected ? " selected" : ""}`, style: `border-color:${borderGlass};` }, header, body);
   }
 
   function renderNotesSortControl() {
@@ -2549,6 +2683,7 @@
         if (!items.length) { status.textContent = "Nothing here"; return; }
         status.classList.add("hidden");
 
+        const tiles = [];
         items.forEach(it => {
           const vid = path.length ? path[path.length - 1].vid : it.vid;
           const rel = path.length ? it.rel : null;
@@ -2559,12 +2694,19 @@
             );
             tile.addEventListener("click", () => { path.push({ vid, rel, name: it.name }); load(); });
             grid.appendChild(tile);
+            tiles.push(tile);
             return;
           }
           const key = keyOf(vid, rel);
+          // Wrapped in .tile-thumb so applyMasonryLayout can measure this
+          // file's own real aspect ratio, same as the folder/album
+          // thumbnail picker — files with no thumb (e.g. an unsupported
+          // type) fall back to the default square box.
+          const thumb = it.thumb_url
+            ? h("div", { class: "tile-thumb" }, h("img", { src: versionedThumbUrl(it), loading: "lazy" }))
+            : h("div", { class: "vault-picker-folder-icon" }, catIcon(it.cat, false));
           const tile = h("div", { class: "vault-picker-tile image", title: it.name },
-            it.thumb_url ? h("img", { src: versionedThumbUrl(it), loading: "lazy" })
-                         : h("div", { class: "vault-picker-folder-icon" }, catIcon(it.cat, false)),
+            thumb,
             h("div", { class: "vault-picker-check" })
           );
           function refresh() { tile.classList.toggle("picked", isMemberNow(key)); }
@@ -2579,7 +2721,9 @@
             updateCount();
           });
           grid.appendChild(tile);
+          tiles.push(tile);
         });
+        applyMasonryLayout(grid, tiles);
       }
 
       load();
@@ -2623,7 +2767,7 @@
   // and decoy each get their own dashboard layout). Widget visibility is
   // opt-out (all on by default) and persisted per vault identity.
   // ════════════════════════════════════════════════════════════════════════
-  const DEFAULT_DASHBOARD_LAYOUT = { widgets: { storage: true, favorites: true, recent: true } };
+  const DEFAULT_DASHBOARD_LAYOUT = { widgets: { storage: true, favorites: true, recent: true, appearance: true } };
   function dashboardLayout() {
     return { ...DEFAULT_DASHBOARD_LAYOUT, ...prefGet("vault", "dashboard_layout", {}),
              widgets: { ...DEFAULT_DASHBOARD_LAYOUT.widgets, ...(prefGet("vault", "dashboard_layout", {}).widgets || {}) } };
@@ -2650,29 +2794,34 @@
     const layout = dashboardLayout();
 
     const toggles = h("div", { class: "dashboard-widget-toggles" },
-      ...["storage", "favorites", "recent"].map(key => {
+      ...["storage", "favorites", "recent", "appearance"].map(key => {
         const cb = h("input", { type: "checkbox" });
         cb.checked = layout.widgets[key];
         cb.addEventListener("change", () => setDashboardWidget(key, cb.checked));
-        return h("label", {}, cb, { storage: "Storage", favorites: "Favorites", recent: "Recently opened" }[key]);
+        return h("label", {}, cb, { storage: "Storage", favorites: "Favorites", recent: "Recently opened", appearance: "Appearance" }[key]);
       })
     );
     wrap.appendChild(toggles);
 
     const grid = h("div", { class: "dashboard-grid" });
+    let cardIndex = 0;
+    // Small stagger so cards animate in one after another instead of all
+    // popping in at once — purely cosmetic, driven by a CSS var per card.
+    const nextDelay = () => `${(cardIndex++) * 60}ms`;
 
     if (layout.widgets.storage) {
-      grid.appendChild(h("div", { class: "dashboard-card" },
+      const card = h("div", { class: "dashboard-card", style: `--dash-delay:${nextDelay()}` },
         h("h3", {}, "Storage"),
         h("div", { class: "dashboard-stat-row" },
           h("b", {}, state.stats.count || 0), h("span", { class: "sub" }, "items locked")),
         h("div", { class: "dashboard-stat-row" },
           h("b", {}, state.stats.size_h || "0 B"), h("span", { class: "sub" }, "total size")),
-      ));
+      );
+      grid.appendChild(card);
     }
 
     if (layout.widgets.favorites) {
-      const card = h("div", { class: "dashboard-card" },
+      const card = h("div", { class: "dashboard-card", style: `--dash-delay:${nextDelay()}` },
         h("h3", {}, "Favorites", h("span", { class: "see-all", onclick: async () => { state.view = "favorites"; await loadFavorites(); render(); } }, "See all"))
       );
       if (state.favoritesItems.length) {
@@ -2687,7 +2836,7 @@
 
     if (layout.widgets.recent) {
       const historyOn = prefGet("vault", "privacy", DEFAULT_PRIVACY).history_enabled;
-      const card = h("div", { class: "dashboard-card" }, h("h3", {}, "Recently opened"));
+      const card = h("div", { class: "dashboard-card", style: `--dash-delay:${nextDelay()}` }, h("h3", {}, "Recently opened"));
       if (!historyOn) {
         card.appendChild(h("div", { class: "dashboard-empty" }, "History is off in Privacy settings \u2014 turn it on to see recently opened items here."));
       } else if (state.recentItems.length) {
@@ -2697,6 +2846,16 @@
       } else {
         card.appendChild(h("div", { class: "dashboard-empty" }, "Nothing opened yet this vault."));
       }
+      grid.appendChild(card);
+    }
+
+    if (layout.widgets.appearance) {
+      // Same background picker as Settings → Appearance, surfaced right on
+      // the dashboard so changing the wallpaper doesn't require a trip
+      // into Settings first.
+      const card = renderAppearanceCard();
+      card.classList.add("dashboard-card", "dashboard-card-wide");
+      card.style.setProperty("--dash-delay", nextDelay());
       grid.appendChild(card);
     }
 
@@ -2855,6 +3014,10 @@
         class: "nav-item", title: shortcutCombo("quick_hide").replace(/\+/g, " + "),
         onclick: () => { state.covered = true; render(); }
       }, h("span", { class: "nav-ico" }, "\u{1F576}\uFE0F"), "Hide Vault") : null,
+      h("div", {
+        class: "nav-item", title: "Log out and return to the login screen \u2014 handy for switching accounts",
+        onclick: doLogout
+      }, h("span", { class: "nav-ico" }, "\u{1F6AA}"), "Logout"),
       h("div", { class: "sidebar-spacer" }),
       h("div", { class: "sidebar-stats" },
         h("b", {}, `${state.stats.count} item${state.stats.count === 1 ? "" : "s"} locked`),
@@ -2961,6 +3124,14 @@
             state.faceScanRunning ? "Scanning\u2026" : "\u21BB Rescan")
         : h("button", { class: "btn btn-primary btn-sm", onclick: onAlbumAddFromVault }, "\uFF0B Add from Vault");
       if (isFaceGroup) rightBtn.addEventListener("click", handleScanFaces);
+      // Lets the thumbnail be set right from here, from whatever's already
+      // collected into this album/group — no need to back out to the
+      // Albums grid (and its "⋯" menu) just to reach that action.
+      const thumbBtn = h("button", { class: "btn btn-ghost btn-sm", disabled: !count, title: count ? "Pick a thumbnail from what's already collected here" : "Collect a photo or video first" }, "\u{1F5BC}\uFE0F Set thumbnail");
+      thumbBtn.addEventListener("click", () => chooseFolderThumbFromVault({
+        vid: state.currentAlbum.vid, name: state.currentAlbum.name, display_name: state.currentAlbum.name,
+        is_dir: true, metadata: { is_album: true },
+      }));
       return h("div", { class: "topbar" },
         h("div", { class: "topbar-row1" },
           h("div", { class: "topbar-title-wrap" },
@@ -2968,6 +3139,7 @@
           ),
           h("div", { class: "topbar-actions" },
             h("button", { class: "btn btn-ghost btn-sm", onclick: backToAlbums }, backLabel),
+            thumbBtn,
             rightBtn
           )
         ),
@@ -3585,9 +3757,18 @@
       else img.addEventListener("load", setAspect, { once: true });
     });
     scheduleRelayout();
+    // Disconnect any observer from a PRIOR call on this same container —
+    // needed now that a picker modal reuses one container across repeated
+    // load() calls (navigating between folders) rather than always
+    // building a fresh one per render like every other caller. Without
+    // this, each navigation left its old observer still attached (still
+    // firing scheduleRelayout() against its own stale, now-detached
+    // `tiles` array), accumulating one extra live observer per folder
+    // visited for as long as the modal stayed open.
+    if (container._masonryRO) container._masonryRO.disconnect();
     const ro = new ResizeObserver(() => scheduleRelayout());
     ro.observe(container);
-    container._masonryRO = ro; // not explicitly disconnected — GC'd along with the discarded container on next render
+    container._masonryRO = ro;
   }
 
 
@@ -4079,10 +4260,20 @@
   }
 
   async function renameOne(it) {
+    // For a file (not a folder), only pre-select the name stem — the part
+    // before the last dot — same as Explorer/Finder. Selecting the whole
+    // string invites a select-all-and-retype edit that drops the
+    // extension, which then breaks opening the file in the vault and, if
+    // it's later restored to disk, leaves it extensionless there too.
+    const dot = !it.is_dir ? it.name.lastIndexOf(".") : -1;
+    const hasProtectableExt = dot > 0 && dot < it.name.length - 1;
     const newName = await modal({
       title: "Rename",
       body: `Choose a new name for "${it.name}".`,
-      input: { placeholder: "New name", value: it.name },
+      input: {
+        placeholder: "New name", value: it.name,
+        ...(hasProtectableExt ? { selectStart: 0, selectEnd: dot } : {}),
+      },
       buttons: [
         { label: "Cancel", value: false, variant: "btn-ghost" },
         { label: "Rename", value: true, variant: "btn-primary" },
@@ -4142,39 +4333,65 @@
     if (res.ok) { bumpThumbVersion(vid, folderRel || null); toast("Thumbnail set from folder background", "success"); await refreshAfterItemAction(); render(); }
     else toast(res.result || "Couldn't set thumbnail from background", "error");
   }
-  // Lets a folder's thumbnail be picked from ANY photo/video anywhere in
-  // the vault, not just something already inside this particular folder —
-  // useful especially when the folder (and its subfolders) don't have
-  // anything the automatic preview could use on its own. Same vault-wide
-  // browser as "Choose from vault\u2026" for backgrounds, reused here with
-  // videos allowed too, since a plain "Set thumb" already allows them. The
+  // Lets a folder's thumbnail be picked from a photo/video — for a real
+  // folder that means anywhere in the vault (see below); for an album or
+  // face group it now means the files ALREADY collected into it, so
+  // setting a thumbnail never requires leaving the album to go dig the
+  // file back out of wherever it physically lives in the vault. The
   // chosen file is used as-is, at its own real aspect ratio.
   async function chooseFolderThumbFromVault(it) {
-    const atRoot = state.path.length === 0;
-    const vid = atRoot ? it.vid : state.path[state.path.length - 1].vid;
-    const folderRel = atRoot ? "" : it.rel;
-    const isAlbum = isAlbumItem(it);
-    // Scoped to this folder's own subtree — otherwise picking a thumbnail
-    // routed through the whole vault from the root, forcing a trip back
-    // down through every parent just to reach files already inside the
-    // very folder being customized. An album has no subtree of its own
-    // (its members physically live elsewhere — see list_album_items), so
-    // scoping the picker to it would always show an empty folder; browse
-    // the whole vault instead.
-    const choice = await vaultImagePickerModal({
-      title: "Choose a thumbnail from your vault",
-      hint: isAlbum
-        ? "Pick any photo or video anywhere in your vault \u2014 it'll be used as this album's thumbnail."
-        : "Browse into this folder and pick any photo or video \u2014 it'll be used as this folder's thumbnail.",
-      allowVideo: true,
-      scopeRoot: isAlbum ? null : { vid, rel: folderRel || null, name: it.name },
-    });
-    if (!choice) return;
-    const prev = await api.get_item_preview_data_url(choice.vid, choice.rel);
-    if (!prev.ok) { toast(prev.error || "Couldn't load that file", "error"); return; }
-    const res = await api.set_folder_thumbnail_from_crop(vid, folderRel || null, prev.data_url);
-    if (res.ok) { bumpThumbVersion(vid, folderRel || null); toast("Thumbnail updated", "success"); await refreshAfterItemAction(); render(); }
-    else toast(res.result || "Couldn't set thumbnail", "error");
+    try {
+      const isAlbum = isAlbumItem(it);
+      // Albums/face groups are always root-level items addressed by their
+      // own vid — never relative to whatever folder happens to still be on
+      // state.path from earlier browsing (that only applies to a real,
+      // nested folder tile).
+      const atRoot = isAlbum || state.path.length === 0;
+      const vid = atRoot ? it.vid : state.path[state.path.length - 1].vid;
+      const folderRel = atRoot ? "" : (it.rel || null);
+
+      let flatItems = null;
+      if (isAlbum) {
+        // Prefer items already loaded for the album currently open (avoids
+        // a redundant fetch); otherwise (picking from the Albums grid,
+        // before entering it) fetch its collected members directly.
+        const alreadyLoaded = state.currentAlbum && state.currentAlbum.vid === it.vid ? state.albumDetailItems : null;
+        const source = alreadyLoaded || (await api.list_album_items(it.vid)).items || [];
+        flatItems = source.filter(m => !m.is_dir && (m.cat === "image" || m.cat === "video"));
+        if (!flatItems.length) {
+          toast("Nothing collected here yet \u2014 add a photo or video first", "error");
+          return;
+        }
+      }
+
+      // A real folder is scoped to its own subtree — otherwise picking a
+      // thumbnail routed through the whole vault from the root, forcing a
+      // trip back down through every parent just to reach files already
+      // inside the very folder being customized.
+      const choice = await vaultImagePickerModal({
+        title: "Choose a thumbnail",
+        hint: isAlbum
+          ? "Pick any photo or video already collected here \u2014 it'll be used as the thumbnail."
+          : "Browse into this folder and pick any photo or video \u2014 it'll be used as this folder's thumbnail.",
+        allowVideo: true,
+        scopeRoot: isAlbum ? null : { vid, rel: folderRel || null, name: it.name },
+        flatItems,
+        flatLabel: it.display_name || it.name,
+      });
+      if (!choice) return;
+      const prev = await api.get_item_preview_data_url(choice.vid, choice.rel || null);
+      if (!prev.ok) { toast(prev.error || "Couldn't load that file", "error"); return; }
+      const res = await api.set_folder_thumbnail_from_crop(vid, folderRel || null, prev.data_url);
+      if (res.ok) { bumpThumbVersion(vid, folderRel || null); toast("Thumbnail updated", "success"); await refreshAfterItemAction(); render(); }
+      else toast(res.result || "Couldn't set thumbnail", "error");
+    } catch (e) {
+      // Anything above throwing (a bridge/network hiccup, a malformed
+      // response) used to fail completely silently — the modal would just
+      // close with nothing visibly happening. Surfacing it means "it's not
+      // working" now comes with an actual reason instead of a dead end.
+      console.error("chooseFolderThumbFromVault failed:", e);
+      toast("Couldn't set thumbnail \u2014 " + (e && e.message ? e.message : "something went wrong"), "error");
+    }
   }
 
   // Smart Thumbnail Collage: auto-picks up to 4 photos/frames found inside
@@ -5314,12 +5531,19 @@
       // and sub-folders actually inside the folder being customized are
       // ever shown.
       scopeRoot = null,
+      // When set (an array of already-known items — e.g. an album's own
+      // collected members), the picker shows exactly those items and
+      // skips folder browsing/crumbs entirely — there's nothing to
+      // navigate into, since the items already come from wherever they
+      // physically live in the vault. Takes priority over scopeRoot.
+      flatItems = null,
+      flatLabel = "This album",
     } = opts || {};
     return new Promise((resolve) => {
       const host = document.getElementById("modal-host");
       const backdrop = h("div", { class: "modal-backdrop" });
 
-      let path = []; // stack of {vid, rel, name} beneath scopeRoot (or the vault root, if no scopeRoot)
+      let path = []; // stack of {vid, rel, name} beneath scopeRoot (or the vault root, if no scopeRoot) — unused in flatItems mode
 
       const crumbBar = h("div", { class: "vault-picker-crumbs" });
       const grid = h("div", { class: "vault-picker-grid" });
@@ -5359,10 +5583,10 @@
 
       function renderCrumbs() {
         crumbBar.innerHTML = "";
-        const rootLabel = scopeRoot ? `\u{1F4C1} ${scopeRoot.name}` : "\u{1F5C2}\uFE0F My Vault";
-        const home = h("span", { class: "vault-picker-crumb" + (path.length === 0 ? " current" : "") }, rootLabel);
-        if (path.length > 0) home.addEventListener("click", () => { path = []; load(); });
+        const rootLabel = flatItems ? `\u{1F39E}\uFE0F ${flatLabel}` : (scopeRoot ? `\u{1F4C1} ${scopeRoot.name}` : "\u{1F5C2}\uFE0F My Vault");
+        const home = h("span", { class: "vault-picker-crumb current" }, rootLabel);
         crumbBar.appendChild(home);
+        if (flatItems) return;
         path.forEach((p, idx) => {
           crumbBar.appendChild(h("span", { class: "vault-picker-crumb-sep" }, "\u203A"));
           const isCurrent = idx === path.length - 1;
@@ -5379,25 +5603,33 @@
         status.textContent = "Loading\u2026";
 
         let items;
-        const top = currentTop();
-        if (!top) {
-          items = await api.list_root();
+        if (flatItems) {
+          items = flatItems;
         } else {
-          const res = await api.browse(top.vid, top.rel);
-          items = res.ok ? res.items : [];
+          const top = currentTop();
+          if (!top) {
+            items = await api.list_root();
+          } else {
+            const res = await api.browse(top.vid, top.rel);
+            items = res.ok ? res.items : [];
+          }
         }
         // Only folders (to browse into) and images — plus videos, when
         // allowVideo is set — are relevant here; everything else is hidden.
-        const usable = items.filter(it => it.is_dir || it.cat === "image" || (allowVideo && it.cat === "video"));
+        // flatItems is already a pre-filtered list of files (no folders).
+        const usable = flatItems ? items : items.filter(it => it.is_dir || it.cat === "image" || (allowVideo && it.cat === "video"));
 
         if (!usable.length) {
-          status.textContent = (path.length === 0 && !scopeRoot)
-            ? (allowVideo ? "No photos or videos in your vault yet" : "No images in your vault yet")
-            : "Nothing here";
+          status.textContent = flatItems
+            ? (allowVideo ? "No photos or videos collected here yet" : "No images collected here yet")
+            : ((path.length === 0 && !scopeRoot)
+              ? (allowVideo ? "No photos or videos in your vault yet" : "No images in your vault yet")
+              : "Nothing here");
           return;
         }
         status.classList.add("hidden");
 
+        const tiles = [];
         usable.forEach(it => {
           if (it.is_dir) {
             const tile = h("div", { class: "vault-picker-tile folder", title: it.name },
@@ -5410,14 +5642,27 @@
               load();
             });
             grid.appendChild(tile);
+            tiles.push(tile);
           } else {
+            // Wrapped in .tile-thumb so applyMasonryLayout (same engine
+            // the main gallery uses) can measure this image's own real
+            // aspect ratio once it loads, and lay every tile out in true
+            // shortest-column order — tall portrait shots and wide
+            // landscape shots each keep their own shape instead of being
+            // squeezed into a fixed square.
+            const img = h("img", { src: versionedThumbUrl(it), loading: "lazy" });
             const tile = h("div", { class: "vault-picker-tile image", title: it.name },
-              h("img", { src: versionedThumbUrl(it), loading: "lazy" })
+              h("div", { class: "tile-thumb" }, img)
             );
-            tile.addEventListener("click", () => { const t = targetFor(it); close(); resolve(t); });
+            tile.addEventListener("click", () => {
+              const t = flatItems ? { vid: it.vid, rel: it.rel || null } : targetFor(it);
+              close(); resolve(t);
+            });
             grid.appendChild(tile);
+            tiles.push(tile);
           }
         });
+        applyMasonryLayout(grid, tiles);
       }
 
       load();

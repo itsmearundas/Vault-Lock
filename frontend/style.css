@@ -2,37 +2,41 @@
    VaultLock — design tokens
    ═══════════════════════════════════════════════════════════════════════ */
 :root{
-  --bg:      #F1F2F6;
-  --panel:   #FFFFFF;
-  --card:    #FFFFFF;
-  --card-2:  #F4F5F9;
-  --card-sel:#EBEEFC;
-  --border:  #E7E8EE;
-  --shadow:  0 1px 2px rgba(20,22,30,.04), 0 8px 24px -12px rgba(20,22,30,.12);
-  --shadow-lg: 0 4px 10px rgba(20,22,30,.06), 0 24px 48px -16px rgba(20,22,30,.20);
-  --accent:  #17181D;
-  --accent-h:#33353D;
-  --accent2: #565A63;
-  --accent2-h:#71757E;
+  /* App-wide palette — matches the navigation rail's near-black, blue-glow
+     language everywhere post-login, so every post-auth screen reads as one
+     deliberate surface instead of the rail being the odd one out. */
+  --bg:      #0A0A0C;
+  --panel:   #16171C;
+  --card:    #17181D;
+  --card-2:  #1E1F26;
+  --card-sel:#1B2242;
+  --border:  rgba(255,255,255,.08);
+  --shadow:  0 1px 0 rgba(255,255,255,.04) inset, 0 8px 24px -12px rgba(0,0,0,.55);
+  --shadow-lg: 0 1px 0 rgba(255,255,255,.05) inset, 0 24px 48px -16px rgba(0,0,0,.65);
+  --accent:  #3D5AFE;
+  --accent-h:#6B7FFF;
+  --accent2: #2A2C35;
+  --accent2-h:#3A3D48;
   --accent3: #3D5AFE;
-  --accent3-bg:#EBEEFC;
-  --success: #1FAE63;
-  --success-h:#178F52;
-  --success-bg:#E4F7EC;
-  --danger:  #E1293D;
-  --danger-h:#BF2033;
-  --danger-bg:#FCE9EB;
-  --warn:    #EDA53A;
-  --warn-h:  #D28F22;
-  --warn-bg: #FDF1DF;
-  --text:    #15171B;
-  --text-2:  #6C7076;
-  --text-3:  #A7ABB2;
+  --accent3-bg:rgba(61,90,254,.16);
+  --success: #22C55E;
+  --success-h:#16A34A;
+  --success-bg:rgba(34,197,94,.14);
+  --danger:  #F5455C;
+  --danger-h:#E1293D;
+  --danger-bg:rgba(225,41,61,.16);
+  --warn:    #F5B94A;
+  --warn-h:  #EDA53A;
+  --warn-bg: rgba(237,165,58,.14);
+  --text:    #F1F2F6;
+  --text-1:  #F1F2F6;
+  --text-2:  #9AA0A6;
+  --text-3:  #6C7076;
 
   --v-bg:    #0A0A0C;
   --v-panel: #000000;
-  --v-card:  #1C1C1F;
-  --v-card-h:#2A2A2E;
+  --v-card:  #232429;
+  --v-card-h:#2E2F36;
   --v-text:  #F1F2F6;
   --v-text-2:#9AA0A6;
 
@@ -41,6 +45,37 @@
   --r-lg: 20px;
   --ease: cubic-bezier(.2,.7,.3,1);
   --font: "Segoe UI", -apple-system, "Inter", "Helvetica Neue", Arial, sans-serif;
+
+  /* Right-hand navigation rail — the rest of the app now mirrors this
+     palette (see above); these tokens just describe the rail's own
+     slightly-elevated gradient surface within that shared language. */
+  --nav-bg-1:      #17181D;
+  --nav-bg-2:      #0A0A0C;
+  --nav-border:    rgba(255,255,255,.08);
+  --nav-text:      #8B909A;
+  --nav-text-h:    #D7D9E0;
+  --nav-text-on:   #F5F6FA;
+  --nav-chip:      rgba(255,255,255,.05);
+  --nav-chip-h:    rgba(255,255,255,.10);
+  --nav-accent:    #3D5AFE;
+  --nav-accent-2:  #6B7FFF;
+  --nav-accent-glow: rgba(61,90,254,.45);
+
+  /* Pre-vault "neural" theme — boot splash, home, setup, login. One
+     continuous dark canvas so those screens read as a single surface
+     rather than separate pages. */
+  --neu-bg-1:      #150C07;
+  --neu-bg-2:      #0A0603;
+  --neu-panel:     rgba(26,17,11,.62);
+  --neu-panel-edge:rgba(255,138,61,.16);
+  --neu-border:    rgba(255,158,89,.18);
+  --neu-text:      #F5EDE6;
+  --neu-text-2:    #C9B8AC;
+  --neu-text-3:    #8C7A6E;
+  --neu-orange:    #FF6A00;
+  --neu-orange-2:  #FFA23D;
+  --neu-orange-3:  #FFC98A;
+  --neu-glow:      rgba(255,106,0,.5);
 }
 
 *{ box-sizing: border-box; }
@@ -54,8 +89,8 @@ img{ -webkit-user-drag:none; }
 button{ font-family:inherit; }
 ::-webkit-scrollbar{ width:10px; height:10px; }
 ::-webkit-scrollbar-track{ background:transparent; }
-::-webkit-scrollbar-thumb{ background:#D6D8E0; border-radius:8px; }
-::-webkit-scrollbar-thumb:hover{ background:#C3C6D0; }
+::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); border-radius:8px; }
+::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,.22); }
 
 .hidden{ display:none !important; }
 
@@ -66,22 +101,41 @@ button{ font-family:inherit; }
 .shell{ position:relative; z-index:1; }
 .auth-wrap{ position:relative; z-index:1; }
 body.custom-bg .main{ background:transparent; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Neural background — the living surface behind boot/home/setup/login.
+   Lives outside #root (see index.html) so swapping screens never touches
+   it; it just keeps drifting underneath, which is what sells the "all one
+   page" feeling as the person moves from intro -> home -> password entry.
+   ═══════════════════════════════════════════════════════════════════════ */
+#neural-bg{
+  position:fixed; inset:0; z-index:0;
+  background:
+    radial-gradient(65% 55% at 50% 28%, rgba(255,106,0,.20), transparent 70%),
+    linear-gradient(160deg, var(--neu-bg-1) 0%, var(--neu-bg-2) 60%, #060402 100%);
+  opacity:1; transition:opacity .7s var(--ease);
+}
+body:not(.pre-auth) #neural-bg{ opacity:0; pointer-events:none; }
+#neural-canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
 body.custom-bg .topbar{ background:transparent; }
-body.custom-bg .sidebar{ background:rgba(255,255,255,.86); backdrop-filter: blur(8px); }
+body.custom-bg .sidebar{
+  background:linear-gradient(165deg, rgba(23,24,29,.82) 0%, rgba(10,10,12,.82) 100%);
+  backdrop-filter: blur(14px);
+}
 body.custom-bg.custom-bg .auth-wrap{ background:transparent; }
 /* Path/title text has nothing behind it once the topbar itself goes
    transparent for a custom background — give it the same kind of frosted
    backing the action buttons already have, so it reads over any photo. */
 body.custom-bg .topbar-title{
-  background:rgba(255,255,255,.86); backdrop-filter:blur(8px);
+  background:rgba(15,16,20,.72); backdrop-filter:blur(8px);
   padding:3px 12px; border-radius:10px; display:inline-block;
 }
 body.custom-bg .crumbs{
-  background:rgba(255,255,255,.86); backdrop-filter:blur(8px);
+  background:rgba(15,16,20,.72); backdrop-filter:blur(8px);
   padding:4px 10px; border-radius:10px;
 }
 body.custom-bg .meta-line{
-  background:rgba(255,255,255,.86); backdrop-filter:blur(8px);
+  background:rgba(15,16,20,.72); backdrop-filter:blur(8px);
   padding:4px 10px; border-radius:10px; display:inline-block;
 }
 
@@ -89,57 +143,120 @@ body.custom-bg .meta-line{
    Buttons
    ═══════════════════════════════════════════════════════════════════════ */
 .btn{
+  position:relative; overflow:hidden; isolation:isolate;
   display:inline-flex; align-items:center; gap:6px; justify-content:center;
-  border:none; border-radius:10px; padding:9px 16px; font-size:13px; font-weight:600;
-  cursor:pointer; transition:transform .12s var(--ease), background .15s var(--ease), box-shadow .15s var(--ease);
-  white-space:nowrap;
+  border:none; border-radius:11px; padding:9px 17px; font-size:13px; font-weight:650;
+  letter-spacing:.1px; cursor:pointer; white-space:nowrap;
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  transition:transform .16s var(--ease), background .18s var(--ease),
+             box-shadow .22s var(--ease), color .18s var(--ease), border-color .18s var(--ease);
+  box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 1px 2px rgba(20,22,30,.06);
 }
-.btn:active{ transform:scale(.96); }
-.btn-primary{ background:var(--accent); color:#fff; }
-.btn-primary:hover{ background:var(--accent-h); }
-.btn-secondary{ background:var(--accent2); color:#fff; }
-.btn-secondary:hover{ background:var(--accent2-h); }
-.btn-ghost{ background:var(--card-2); color:var(--text); }
-.btn-ghost:hover{ background:var(--border); }
-.btn-success-soft{ background:var(--success-bg); color:var(--success-h); }
-.btn-success-soft:hover{ background:#d3f2e0; }
-.btn-danger-soft{ background:var(--danger-bg); color:var(--danger-h); }
-.btn-danger-soft:hover{ background:#fadadf; }
-.btn-danger{ background:var(--danger); color:#fff; }
-.btn-danger:hover{ background:var(--danger-h); }
-.btn-sm{ padding:6px 11px; font-size:12px; border-radius:8px; }
-.btn-icon{ padding:8px; border-radius:9px; }
-.btn:disabled{ opacity:.45; cursor:default; pointer-events:none; }
+/* Shared hover "sheen" sweep — the same diagonal light pass used on the
+   boot-splash lock and the nav rail, so the motion feels like one system. */
+.btn::after{
+  content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(115deg, transparent 40%, rgba(255,255,255,.30) 50%, transparent 60%);
+  transform:translateX(-120%); transition:transform .55s var(--ease);
+}
+.btn:hover::after{ transform:translateX(120%); }
+.btn > *{ position:relative; z-index:2; }
+.btn:hover{ transform:translateY(-2px); }
+.btn:active{ transform:translateY(0) scale(.965); transition-duration:.08s; }
+.btn:focus-visible{ outline:2px solid var(--nav-accent); outline-offset:2px; }
+
+.btn-primary{ background:linear-gradient(160deg, var(--accent-h) 0%, var(--accent) 100%); color:#fff; }
+.btn-primary:hover{ box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 12px 24px -10px rgba(61,90,254,.6); }
+
+.btn-secondary{ background:linear-gradient(160deg, #9C6BFF 0%, #6B3FE0 100%); color:#fff; }
+.btn-secondary:hover{ box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 12px 24px -10px rgba(139,71,255,.55); }
+
+/* Ghost used to be flat near-black (var(--card-2), barely distinguishable
+   from the app background) on ~80 buttons across the app — the single
+   biggest source of "everything is black". It's now a colorful, glassy
+   indigo tint that still reads as a secondary/neutral action, just not
+   a black hole. */
+.btn-ghost{
+  background:linear-gradient(160deg, rgba(107,127,255,.20) 0%, rgba(61,90,254,.09) 100%);
+  color:var(--text);
+  box-shadow:0 0 0 1px rgba(107,127,255,.28) inset, 0 1px 0 rgba(255,255,255,.06) inset;
+}
+.btn-ghost:hover{
+  background:linear-gradient(160deg, rgba(107,127,255,.32) 0%, rgba(61,90,254,.16) 100%);
+  box-shadow:0 0 0 1px rgba(107,127,255,.45) inset, 0 10px 20px -10px rgba(61,90,254,.45);
+}
+
+.btn-success-soft{ background:var(--success-bg); color:var(--success-h); box-shadow:0 0 0 1px rgba(31,174,99,.16) inset; }
+.btn-success-soft:hover{ background:#d3f2e0; box-shadow:0 0 0 1px rgba(31,174,99,.22) inset, 0 8px 16px -10px rgba(31,174,99,.45); }
+
+.btn-danger-soft{ background:var(--danger-bg); color:var(--danger-h); box-shadow:0 0 0 1px rgba(225,41,61,.16) inset; }
+.btn-danger-soft:hover{ background:#fadadf; box-shadow:0 0 0 1px rgba(225,41,61,.22) inset, 0 8px 16px -10px rgba(225,41,61,.45); }
+
+.btn-danger{ background:linear-gradient(160deg, var(--danger-h) 0%, var(--danger) 100%); color:#fff; }
+.btn-danger:hover{ box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 12px 24px -10px rgba(225,41,61,.55); }
+
+.btn-sm{ padding:6px 12px; font-size:12px; border-radius:9px; }
+/* Icon-only buttons (⋮ menus, close buttons, etc.) get their own subtle
+   teal-glass tint so they read as distinct from ghost text buttons rather
+   than both collapsing into "the same dark square". */
+.btn-icon{
+  padding:8px; border-radius:10px;
+  background:rgba(45,212,191,.14); box-shadow:0 0 0 1px rgba(45,212,191,.22) inset;
+}
+.btn-icon:hover{ background:rgba(45,212,191,.24); box-shadow:0 0 0 1px rgba(45,212,191,.35) inset, 0 8px 16px -10px rgba(45,212,191,.4); }
+.btn:disabled{ opacity:.45; cursor:default; pointer-events:none; transform:none !important; }
+.btn:disabled::after{ display:none; }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   Auth screens (setup / login)
+   Auth screens (home / setup / login) — dark glass over #neural-bg
    ═══════════════════════════════════════════════════════════════════════ */
 .auth-wrap{
   height:100%; display:flex; align-items:center; justify-content:center;
-  background:
-    radial-gradient(1200px 600px at 15% -10%, #ffffff 0%, transparent 60%),
-    var(--bg);
+  background:transparent;
 }
 .auth-card{
-  width:400px; max-width:90vw; background:var(--panel); border:1px solid var(--border);
-  border-radius:var(--r-lg); box-shadow:var(--shadow-lg); padding:40px 40px 32px;
-  animation: cardIn .35s var(--ease);
+  position:relative; width:400px; max-width:90vw;
+  background:var(--neu-panel); backdrop-filter:blur(22px);
+  border:1px solid var(--neu-border); border-radius:var(--r-lg);
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 30px 70px -24px rgba(0,0,0,.65),
+             0 0 0 1px rgba(0,0,0,.3);
+  padding:40px 40px 32px; color:var(--neu-text);
+  animation: cardIn .45s var(--ease);
+  overflow:hidden;
+  /* Inline styles elsewhere (e.g. the setup screen's storage-location row)
+     reference these general tokens directly — redefining them for anything
+     inside the auth card keeps that markup dark-theme-correct for free. */
+  --card-2: rgba(255,255,255,.05);
+  --text-3: var(--neu-text-3);
 }
-@keyframes cardIn{ from{ opacity:0; transform:translateY(10px) scale(.98);} to{opacity:1; transform:none;} }
+/* a hairline of accent light along the top edge, like a circuit trace */
+.auth-card::before{
+  content:""; position:absolute; top:0; left:14%; right:14%; height:1px;
+  background:linear-gradient(90deg, transparent, var(--neu-orange-2), transparent);
+  opacity:.8;
+}
+@keyframes cardIn{ from{ opacity:0; transform:translateY(14px) scale(.97);} to{opacity:1; transform:none;} }
 .auth-logo{
-  width:64px; height:64px; border-radius:50%; background:var(--card-2);
-  border:1.5px solid var(--accent); display:flex; align-items:center; justify-content:center;
+  position:relative; width:64px; height:64px; border-radius:50%;
+  background:radial-gradient(circle at 32% 28%, rgba(255,178,110,.25), rgba(23,13,8,.9) 70%);
+  border:1.5px solid var(--neu-orange); display:flex; align-items:center; justify-content:center;
   font-size:26px; margin:0 auto 18px;
+  box-shadow:0 0 0 5px rgba(255,106,0,.08), 0 0 24px -4px var(--neu-glow);
+  animation: authLogoPulse 3.2s ease-in-out infinite;
 }
-.auth-title{ text-align:center; font-size:22px; font-weight:800; margin:0; }
-.auth-sub{ text-align:center; color:var(--text-2); font-size:12.5px; margin:4px 0 26px; }
+@keyframes authLogoPulse{
+  0%,100%{ box-shadow:0 0 0 5px rgba(255,106,0,.08), 0 0 24px -4px var(--neu-glow); }
+  50%{ box-shadow:0 0 0 8px rgba(255,106,0,.12), 0 0 34px 0 var(--neu-glow); }
+}
+.auth-title{ text-align:center; font-size:22px; font-weight:800; margin:0; color:var(--neu-text); letter-spacing:.2px; }
+.auth-sub{ text-align:center; color:var(--neu-text-2); font-size:12.5px; margin:4px 0 26px; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    Home screen
    ═══════════════════════════════════════════════════════════════════════ */
 .home-card{ text-align:center; padding-bottom:36px; }
 .home-logo{ width:76px; height:76px; font-size:32px; }
-.home-tagline{ font-size:12px; color:var(--text-3); line-height:1.6; margin:0 0 26px; }
+.home-tagline{ font-size:12px; color:var(--neu-text-3); line-height:1.6; margin:0 0 26px; }
 .home-cta{ margin-top:2px; }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -173,7 +290,8 @@ body.custom-bg .meta-line{
 .vault-enter-lock.pop{ transform:scale(1.25) rotate(-6deg); }
 .vault-enter-ring{
   position:absolute; width:88px; height:88px; border-radius:50%;
-  border:2px solid rgba(255,255,255,.16); border-top-color:rgba(255,255,255,.7);
+  border:2px solid rgba(255,255,255,.14); border-top-color:var(--neu-orange-2);
+  box-shadow:0 0 22px -4px var(--neu-glow);
   animation: vaultRingSpin .9s linear infinite;
 }
 @keyframes vaultRingSpin{ to{ transform:rotate(360deg); } }
@@ -181,56 +299,142 @@ body.custom-bg .meta-line{
 .field{ margin-bottom:16px; }
 .field label{
   display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600;
-  color:var(--text-2); margin-bottom:6px;
+  color:var(--neu-text-2); margin-bottom:6px;
 }
-.field-hint{ font-size:11px; color:var(--text-3); font-weight:400; }
+.field-hint{ font-size:11px; color:var(--neu-text-3); font-weight:400; }
 .pw-row{ position:relative; display:flex; }
 .pw-row input{
-  flex:1; border:1px solid var(--border); border-radius:10px; padding:10px 40px 10px 12px;
+  flex:1; border:1px solid var(--neu-border); border-radius:10px; padding:10px 40px 10px 12px;
   font-size:14px; outline:none; transition:border-color .15s var(--ease), box-shadow .15s var(--ease);
-  background:var(--panel); color:var(--text);
+  background:rgba(0,0,0,.28); color:var(--neu-text);
 }
-.pw-row input:focus{ border-color:var(--accent3); box-shadow:0 0 0 3px var(--accent3-bg); }
+.pw-row input::placeholder{ color:var(--neu-text-3); }
+.pw-row input:focus{ border-color:var(--neu-orange); box-shadow:0 0 0 3px rgba(255,106,0,.16); }
 .pw-toggle{
   position:absolute; right:4px; top:4px; bottom:4px; width:34px; border:none; background:transparent;
-  color:var(--text-3); cursor:pointer; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  color:var(--neu-text-3); cursor:pointer; border-radius:8px; display:flex; align-items:center; justify-content:center;
 }
-.pw-toggle:hover{ background:var(--card-2); color:var(--text); }
-.auth-info{ background:var(--card-2); border-radius:10px; padding:12px 14px; font-size:11.5px; color:var(--text-2); margin:6px 0 22px; line-height:1.85; }
-.auth-info b{ color:var(--text); }
-.auth-info .danger-line{ color:var(--danger); }
-.auth-err{ background:var(--danger-bg); color:var(--danger-h); border-radius:10px; padding:10px 12px; font-size:12.5px; margin-bottom:14px; display:none; }
+.pw-toggle:hover{ background:rgba(255,255,255,.06); color:var(--neu-orange-2); }
+.auth-info{ background:rgba(255,255,255,.04); border:1px solid var(--neu-border); border-radius:10px; padding:12px 14px; font-size:11.5px; color:var(--neu-text-2); margin:6px 0 22px; line-height:1.85; }
+.auth-info b{ color:var(--neu-text); }
+.auth-info .danger-line{ color:#FF8A6B; }
+.auth-err{ background:rgba(225,41,61,.14); border:1px solid rgba(225,41,61,.3); color:#FF9AA6; border-radius:10px; padding:10px 12px; font-size:12.5px; margin-bottom:14px; display:none; }
 .auth-err.show{ display:block; }
 .btn-block{ width:100%; padding:12px; font-size:14px; border-radius:12px; }
+.auth-card .btn-ghost{ background:rgba(255,255,255,.06); color:var(--neu-text); box-shadow:0 0 0 1px var(--neu-border) inset; }
+.auth-card .btn-ghost:hover{ background:rgba(255,255,255,.1); box-shadow:0 0 0 1px var(--neu-border) inset; }
+/* Premium orange CTA used only on the pre-vault screens */
+.btn-neural{
+  background:linear-gradient(150deg, var(--neu-orange-2) 0%, var(--neu-orange) 100%);
+  color:#1A0D05; box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 12px 26px -10px var(--neu-glow);
+}
+.btn-neural:hover{ box-shadow:0 1px 0 rgba(255,255,255,.4) inset, 0 16px 32px -10px var(--neu-glow); }
+
+/* Energy pulse fired from a button on the pre-vault screens when moving
+   to the next step — a small traveling glow so the transition reads as
+   "this screen feeding into the next" rather than a hard cut. */
+.neural-pulse{
+  position:fixed; z-index:200; width:10px; height:10px; border-radius:50%;
+  background:radial-gradient(circle, #FFE3C2 0%, var(--neu-orange) 55%, transparent 75%);
+  box-shadow:0 0 18px 4px var(--neu-glow);
+  pointer-events:none; transform:translate(-50%,-50%);
+  animation: neuralPulseRise .62s cubic-bezier(.3,.7,.4,1) forwards;
+}
+@keyframes neuralPulseRise{
+  0%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  70%{ opacity:.9; }
+  100%{ opacity:0; transform:translate(-50%,-220%) scale(.4); }
+}
+/* Card hand-off: the outgoing card sinks back slightly while the next
+   one arrives, instead of an instant swap. */
+.auth-card.card-leaving{
+  animation: cardOut .28s var(--ease) forwards;
+}
+@keyframes cardOut{ to{ opacity:0; transform:translateY(-8px) scale(.98); } }
+
 
 /* ═══════════════════════════════════════════════════════════════════════
    App shell
    ═══════════════════════════════════════════════════════════════════════ */
 .shell{ display:flex; height:100%; }
-.sidebar{
-  width:220px; background:var(--panel); border-right:1px solid var(--border);
-  display:flex; flex-direction:column; padding:18px 12px; flex-shrink:0;
-}
-.brand{ display:flex; align-items:center; gap:10px; padding:6px 8px 20px; }
-.brand-badge{
-  width:34px; height:34px; border-radius:50%; background:var(--card-2); border:1px solid var(--accent);
-  display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0;
-}
-.brand-name{ font-weight:800; font-size:15px; }
-.nav-item{
-  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; cursor:pointer;
-  color:var(--text-2); font-size:13.5px; font-weight:600; margin-bottom:2px;
-  transition:background .15s var(--ease), color .15s var(--ease);
-}
-.nav-item:hover{ background:var(--card-2); color:var(--text); }
-.nav-item.active{ background:var(--card-sel); color:var(--text); }
-.nav-item.active .nav-ico{ color:var(--accent3); }
-.nav-ico{ font-size:15px; width:18px; text-align:center; }
-.sidebar-spacer{ flex:1; }
-.sidebar-stats{ border-top:1px solid var(--border); padding-top:14px; font-size:11.5px; color:var(--text-3); }
-.sidebar-stats b{ color:var(--text); display:block; font-size:13px; margin-bottom:2px; }
 
-.main{ flex:1; display:flex; flex-direction:column; min-width:0; background:var(--bg); position:relative; }
+/* ═══════════════════════════════════════════════════════════════════════
+   Navigation rail — floats on the right, dark against the light canvas.
+   Same near-black gradient + accent glow as the boot-splash, so the one
+   piece of chrome that's always on screen carries the brand consistently.
+   ═══════════════════════════════════════════════════════════════════════ */
+.sidebar{
+  order:2; width:226px; flex-shrink:0; margin:14px 14px 14px 0;
+  background:linear-gradient(165deg, var(--nav-bg-1) 0%, var(--nav-bg-2) 100%);
+  border:1px solid var(--nav-border); border-radius:var(--r-lg);
+  box-shadow:0 24px 48px -20px rgba(10,10,14,.45), 0 1px 0 rgba(255,255,255,.05) inset;
+  display:flex; flex-direction:column; padding:18px 14px 16px;
+  position:relative; overflow:hidden;
+}
+/* faint ambient glow behind the brand mark, echoing the splash-screen ring */
+.sidebar::before{
+  content:""; position:absolute; top:-60px; right:-60px; width:190px; height:190px;
+  border-radius:50%; pointer-events:none;
+  background:radial-gradient(circle, var(--nav-accent-glow) 0%, transparent 70%);
+  opacity:.5;
+}
+
+.brand{ display:flex; align-items:center; gap:11px; padding:4px 6px 20px; position:relative; z-index:1; }
+.brand-badge{
+  width:36px; height:36px; border-radius:12px;
+  background:linear-gradient(150deg, var(--nav-accent-2) 0%, var(--nav-accent) 100%);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08) inset, 0 6px 16px -6px var(--nav-accent-glow);
+  display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;
+}
+.brand-name{ font-weight:800; font-size:14.5px; letter-spacing:.4px; color:var(--nav-text-on); }
+
+.nav-item{
+  position:relative; z-index:1; overflow:hidden; isolation:isolate;
+  display:flex; align-items:center; gap:11px; padding:9px 11px; border-radius:12px; cursor:pointer;
+  color:var(--nav-text); font-size:13px; font-weight:600; margin-bottom:3px;
+  transition:background .2s var(--ease), color .2s var(--ease), transform .2s var(--ease);
+}
+/* diagonal sheen sweep on hover — the same motion language as the buttons
+   and the boot-splash lock sweep */
+.nav-item::before{
+  content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,.08) 50%, transparent 65%);
+  transform:translateX(-130%); transition:transform .6s var(--ease);
+}
+.nav-item:hover::before{ transform:translateX(130%); }
+.nav-item > *{ position:relative; z-index:1; }
+.nav-item:hover{ background:var(--nav-chip); color:var(--nav-text-h); transform:translateX(-2px); }
+.nav-item.active{
+  background:linear-gradient(135deg, rgba(61,90,254,.22) 0%, rgba(61,90,254,.08) 100%);
+  color:var(--nav-text-on);
+  box-shadow:0 0 0 1px rgba(61,90,254,.28) inset;
+}
+/* a thin lit filament that reaches out to the rail's own edge */
+.nav-item.active::after{
+  content:""; position:absolute; right:-14px; top:50%; translate:0 -50%; z-index:2;
+  width:3px; height:58%; border-radius:3px 0 0 3px;
+  background:linear-gradient(var(--nav-accent-2), var(--nav-accent));
+  box-shadow:0 0 10px 1px var(--nav-accent-glow);
+}
+.nav-item.active .nav-ico{
+  background:linear-gradient(150deg, var(--nav-accent-2) 0%, var(--nav-accent) 100%);
+  box-shadow:0 0 0 4px rgba(61,90,254,.14), 0 6px 14px -4px var(--nav-accent-glow);
+  color:#fff; transform:scale(1.04);
+}
+.nav-ico{
+  width:30px; height:30px; border-radius:9px; background:var(--nav-chip);
+  display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;
+  transition:background .2s var(--ease), box-shadow .2s var(--ease), transform .2s var(--ease);
+}
+.nav-item:hover .nav-ico{ background:var(--nav-chip-h); transform:translateY(-1px); }
+.sidebar-spacer{ flex:1; }
+.sidebar-stats{
+  border-top:1px solid var(--nav-border); padding-top:14px; font-size:11.5px; color:var(--nav-text);
+  position:relative; z-index:1;
+}
+.sidebar-stats b{ color:var(--nav-text-on); display:block; font-size:13px; margin-bottom:2px; }
+
+.main{ flex:1; order:1; display:flex; flex-direction:column; min-width:0; background:var(--bg); position:relative; }
 
 .topbar{
   padding:18px 26px 14px; display:flex; flex-direction:column; gap:12px; flex-shrink:0;
@@ -266,19 +470,40 @@ body.custom-bg .meta-line{
 /* ═══════════════════════════════════════════════════════════════════════
    "Your Text" — a stack of freeform text cards below Favorites. Each card
    has its own accent color: a dark shade behind the header/buttons and a
-   light tint of that same color behind the body text. Cards run the full
-   width of the content area, one below another, and grow to fit their text.
+   light tint of that same color behind the body text. Cards sit in a
+   responsive grid — fixed-height tiles with a clamped text preview, so
+   every card lines up regardless of how much text it holds. Opening a
+   card's editor still shows the full text.
    ═══════════════════════════════════════════════════════════════════════ */
 .content.notes-view{ display:flex; flex-direction:column; padding:16px 26px 40px; overflow-y:auto; }
-.notes-list{ display:flex; flex-direction:column; gap:16px; width:100%; max-width:100%; }
-.note-card{
-  width:100%; box-sizing:border-box; border:1.5px solid var(--border); border-radius:var(--r-md);
-  overflow:hidden; box-shadow:var(--shadow); transition:box-shadow .15s var(--ease), transform .12s var(--ease);
+.notes-list{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
+  gap:18px; width:100%; max-width:100%; align-items:stretch;
 }
-.note-card.selected{ box-shadow:var(--shadow-lg); }
+.note-card{
+  position:relative; width:100%; height:236px; box-sizing:border-box;
+  border:1.5px solid var(--border); border-radius:var(--r-md);
+  overflow:hidden; display:flex; flex-direction:column;
+  background:rgba(30,31,38,.55);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
+  transition:box-shadow .18s var(--ease), transform .18s var(--ease), border-color .18s var(--ease);
+}
+/* glossy top highlight, like light catching curved glass */
+.note-card::after{
+  content:""; position:absolute; inset:0 0 auto 0; height:46%; z-index:1; pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 100%);
+}
+.note-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.12); }
+.note-card.selected{ box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.12); }
 .note-card-hdr{
+  position:relative; z-index:0;
   display:flex; align-items:center; justify-content:space-between; gap:10px;
-  padding:10px 14px; color:#fff;
+  padding:10px 14px; color:#fff; flex-shrink:0;
+  backdrop-filter:blur(18px) saturate(180%);
+  -webkit-backdrop-filter:blur(18px) saturate(180%);
+  border-bottom:1px solid rgba(255,255,255,.22);
 }
 .note-card-title-wrap{ min-width:0; flex:1; }
 .note-card-title{
@@ -349,9 +574,15 @@ body.custom-bg .meta-line{
 }
 .color-swatch:hover{ transform:scale(1.1); }
 .color-swatch.active{ border-color:var(--text); transform:scale(1.15); }
-.note-card-body{ padding:16px 18px; box-sizing:border-box; }
+.note-card-body{
+  position:relative; z-index:0;
+  padding:14px 18px; box-sizing:border-box; flex:1; min-height:0; overflow:hidden; cursor:pointer;
+  backdrop-filter:blur(22px) saturate(160%);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+}
 .note-card-text{
-  font-size:13.5px; line-height:1.65; color:var(--text); white-space:pre-wrap; word-break:break-word;
+  font-size:13.5px; line-height:1.6; color:var(--text); white-space:pre-wrap; word-break:break-word;
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:6; overflow:hidden;
 }
 .note-card-empty{ color:var(--text-3); font-style:italic; }
 .notes-empty{
@@ -514,7 +745,7 @@ body.custom-bg .meta-line{
 .list-row:first-child{ border-top:none; }
 .list-row:hover{ background:var(--card-2); }
 .list-check{
-  width:20px; height:20px; border-radius:6px; border:1.5px solid #D3D5DE; background:#fff;
+  width:20px; height:20px; border-radius:6px; border:1.5px solid rgba(255,255,255,.22); background:var(--card-2);
   display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:11px; color:#fff;
   opacity:0; transition:opacity .12s var(--ease); cursor:pointer;
 }
@@ -761,7 +992,7 @@ body.custom-bg .meta-line{
 /* ═══════════════════════════════════════════════════════════════════════
    "Choose from vault" background picker — folder-navigable, scrollable
    ═══════════════════════════════════════════════════════════════════════ */
-.vault-picker-modal{ width:460px; max-width:92vw; }
+.vault-picker-modal{ width:760px; max-width:92vw; }
 .vault-picker-crumbs{
   display:flex; align-items:center; flex-wrap:wrap; gap:2px; margin-bottom:10px;
   font-size:12px; color:var(--text-2);
@@ -772,19 +1003,31 @@ body.custom-bg .meta-line{
 .vault-picker-crumb.current:hover{ background:none; }
 .vault-picker-crumb-sep{ color:var(--text-3); padding:0 1px; }
 
+/* True shortest-column masonry (same engine as the main gallery — see
+   applyMasonryLayout) instead of CSS multi-column: CSS `columns` balances
+   by total content rather than placing each tile in the actually-shortest
+   column, so tiles ended up reading left-to-right in loose horizontal rows
+   instead of settling into clean vertical columns. This container IS the
+   scroll viewport (tall/vertical, not wide), and its own height is set by
+   the layout function to match its tallest column. */
 .vault-picker-grid{
-  display:grid; grid-template-columns:repeat(4,1fr); gap:10px;
-  max-height:360px; overflow-y:auto; margin-bottom:6px; padding-right:2px;
+  max-height:65vh; overflow-y:auto; overflow-x:hidden; margin-bottom:6px; padding-right:4px;
+}
+.vault-picker-grid.masonry-js{ position:relative; display:block; }
+.vault-picker-grid.masonry-js > .vault-picker-tile{
+  position:absolute; top:0; left:0; margin:0;
+  transition:left .18s var(--ease), top .18s var(--ease), width .18s var(--ease), height .18s var(--ease),
+             border-color .12s var(--ease), transform .12s var(--ease);
 }
 .vault-picker-tile{
-  aspect-ratio:1; border-radius:10px; overflow:hidden; cursor:pointer;
+  display:block; width:100%; border-radius:10px; overflow:hidden; cursor:pointer;
   border:2px solid transparent; background:var(--card-2);
   transition:border-color .12s var(--ease), transform .12s var(--ease);
 }
 .vault-picker-tile:hover{ border-color:var(--accent3); transform:translateY(-1px); }
-.vault-picker-tile.image img{ width:100%; height:100%; object-fit:cover; display:block; }
+.vault-picker-tile.image img{ width:100%; height:100%; object-fit:contain; background:var(--card-2); display:block; }
 .vault-picker-tile.folder{
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; padding:6px;
+  aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; padding:6px;
   background:linear-gradient(160deg, var(--card-2), var(--border));
 }
 .vault-picker-folder-icon{ font-size:27px; }
@@ -813,7 +1056,7 @@ body.custom-bg .meta-line{
 .screen-fade{ animation: fadeIn .18s var(--ease); height:100%; }
 
 @media (max-width: 900px){
-  .sidebar{ width:180px; }
+  .sidebar{ width:190px; margin:10px 10px 10px 0; padding:16px 10px 14px; }
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -998,9 +1241,8 @@ body.custom-bg .meta-line{
   background-size:cover; background-position:center; position:relative;
 }
 .content.has-folder-bg::before{
-  content:""; position:absolute; inset:0; background:rgba(255,255,255,.72); pointer-events:none; z-index:0;
+  content:""; position:absolute; inset:0; background:rgba(12,13,18,.72); pointer-events:none; z-index:0;
 }
-body.dark-theme .content.has-folder-bg::before{ background:rgba(12,13,18,.72); }
 .content.has-folder-bg > *{ position:relative; z-index:1; }
 
 /* ── Phase 3.4/3.5: Custom Folder Header + Folder Cover Styles ─────────── */
@@ -1083,8 +1325,7 @@ body.dark-theme .content.has-folder-bg::before{ background:rgba(12,13,18,.72); }
 .folder-header-badges{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
 .rule-badge{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; }
 .rule-badge-info{ background:var(--card-2); color:var(--text-2); }
-.rule-badge-suggest{ background:#fef3c7; color:#92400e; }
-body.dark-theme .rule-badge-suggest{ background:#3f2d0a; color:#fbbf24; }
+.rule-badge-suggest{ background:#3f2d0a; color:#fbbf24; }
 .rule-badge.clickable{ cursor:pointer; }
 .rule-badge.clickable:hover{ filter:brightness(0.95); }
 
@@ -1123,30 +1364,73 @@ body.dark-theme .rule-badge-suggest{ background:#3f2d0a; color:#fbbf24; }
 
 
 /* ── Phase 3.1: Custom Home Dashboard ────────────────────────────────────── */
+@keyframes dashCardIn{
+  from{ opacity:0; transform:translateY(14px) scale(.98); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes dashGlow{
+  0%,100%{ opacity:.55; }
+  50%{ opacity:1; }
+}
 .dashboard-grid{
-  display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:16px; padding:4px 0 24px;
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px; padding:4px 0 24px;
 }
 .dashboard-card{
-  background:var(--card); border:1px solid var(--border); border-radius:var(--r-lg); padding:18px 20px;
-  box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px;
+  position:relative; isolation:isolate; overflow:hidden;
+  background:linear-gradient(165deg, rgba(35,38,54,.72) 0%, rgba(20,21,28,.78) 100%);
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.09); border-radius:var(--r-lg); padding:18px 20px;
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 16px 32px -20px rgba(0,0,0,.65);
+  display:flex; flex-direction:column; gap:10px;
+  animation:dashCardIn .5s var(--ease) both;
+  animation-delay:var(--dash-delay, 0ms);
+  transition:transform .25s var(--ease), box-shadow .3s var(--ease), border-color .3s var(--ease);
 }
+/* A soft animated accent bar across the top of every card — the "alive"
+   touch that makes the dashboard read as more than a static grid. */
+.dashboard-card::before{
+  content:""; position:absolute; inset:0 0 auto 0; height:3px; z-index:1;
+  background:linear-gradient(90deg, var(--accent3), var(--nav-accent-2), #22C55E, var(--accent3));
+  background-size:300% 100%; opacity:.55;
+  animation:dashGlow 3.5s ease-in-out infinite;
+}
+.dashboard-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(107,127,255,.35);
+  box-shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 22px 40px -18px rgba(61,90,254,.35);
+}
+.dashboard-card-wide{ grid-column:1 / -1; }
+/* The Appearance widget reuses renderAppearanceCard(), which also carries
+   the plain .settings-card class — override its standalone spacing here
+   (grid gap already handles it) without touching Settings' own look. */
+.dashboard-card.settings-card{ margin-bottom:0; }
 .dashboard-card h3{ margin:0; font-size:14px; font-weight:800; display:flex; align-items:center; justify-content:space-between; }
-.dashboard-card .see-all{ font-size:11.5px; font-weight:700; color:var(--accent3); cursor:pointer; }
+.dashboard-card .see-all{ font-size:11.5px; font-weight:700; color:var(--accent3); cursor:pointer; transition:color .15s var(--ease); }
+.dashboard-card .see-all:hover{ color:var(--nav-accent-2); text-decoration:underline; }
 .dashboard-stat-row{ display:flex; justify-content:space-between; align-items:baseline; padding:6px 0; }
-.dashboard-stat-row b{ font-size:22px; }
+.dashboard-stat-row b{ font-size:22px; background:linear-gradient(120deg, var(--nav-accent-2), var(--accent3)); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .dashboard-mini-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
 .dashboard-mini-tile{
   aspect-ratio:1; border-radius:10px; background:var(--card-2) center/cover no-repeat; cursor:pointer;
   display:flex; align-items:flex-end; position:relative; overflow:hidden; font-size:22px;
+  transition:transform .2s var(--ease), box-shadow .2s var(--ease);
 }
-.dashboard-mini-tile:hover{ outline:2px solid var(--accent3); }
+.dashboard-mini-tile:hover{ outline:2px solid var(--accent3); transform:translateY(-2px) scale(1.03); box-shadow:0 10px 22px -12px rgba(61,90,254,.55); }
 .dashboard-mini-tile .mini-label{
   width:100%; font-size:10px; padding:4px 6px; background:linear-gradient(transparent, rgba(0,0,0,.65));
   color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .dashboard-empty{ font-size:12.5px; color:var(--text-3); padding:8px 0; }
-.dashboard-widget-toggles{ display:flex; flex-wrap:wrap; gap:14px; margin-bottom:10px; }
-.dashboard-widget-toggles label{ font-size:12px; display:flex; align-items:center; gap:6px; cursor:pointer; }
+.dashboard-widget-toggles{
+  display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px;
+}
+.dashboard-widget-toggles label{
+  font-size:12px; display:flex; align-items:center; gap:7px; cursor:pointer;
+  padding:6px 12px; border-radius:999px;
+  background:rgba(107,127,255,.10); border:1px solid rgba(107,127,255,.20);
+  backdrop-filter:blur(8px); transition:background .18s var(--ease), border-color .18s var(--ease);
+}
+.dashboard-widget-toggles label:hover{ background:rgba(107,127,255,.18); border-color:rgba(107,127,255,.35); }
 /* ═══════════════════════════════════════════════════════════════════════
    Privacy & Security page
    ═══════════════════════════════════════════════════════════════════════ */

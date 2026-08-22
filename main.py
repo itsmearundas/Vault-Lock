@@ -1320,6 +1320,10 @@ def main():
         "VaultLock", str(FRONTEND_DIR / "index.html"),
         js_api=api, width=1240, height=800, min_size=(980, 640),
         background_color="#F1F2F6",
+        # Always open maximized instead of the OS-default windowed size —
+        # the person otherwise has to manually maximize every launch to
+        # get the full view.
+        maximized=True,
     )
     api._bind_window(window)
     webview.start()
