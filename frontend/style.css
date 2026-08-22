@@ -2,35 +2,41 @@
    VaultLock — design tokens
    ═══════════════════════════════════════════════════════════════════════ */
 :root{
-  --bg:      #F1F2F6;
-  --panel:   #FFFFFF;
-  --card:    #FFFFFF;
-  --card-2:  #F4F5F9;
-  --card-sel:#EBEEFC;
-  --border:  #E7E8EE;
-  --shadow:  0 1px 2px rgba(20,22,30,.04), 0 8px 24px -12px rgba(20,22,30,.12);
-  --shadow-lg: 0 4px 10px rgba(20,22,30,.06), 0 24px 48px -16px rgba(20,22,30,.20);
-  --accent:  #17181D;
-  --accent-h:#33353D;
-  --accent2: #565A63;
-  --accent2-h:#71757E;
+  /* App-wide palette — matches the navigation rail's near-black, blue-glow
+     language everywhere post-login, so every post-auth screen reads as one
+     deliberate surface instead of the rail being the odd one out. */
+  --bg:      #0A0A0C;
+  --panel:   #16171C;
+  --card:    #17181D;
+  --card-2:  #1E1F26;
+  --card-sel:#1B2242;
+  --border:  rgba(255,255,255,.08);
+  --shadow:  0 1px 0 rgba(255,255,255,.04) inset, 0 8px 24px -12px rgba(0,0,0,.55);
+  --shadow-lg: 0 1px 0 rgba(255,255,255,.05) inset, 0 24px 48px -16px rgba(0,0,0,.65);
+  --accent:  #3D5AFE;
+  --accent-h:#6B7FFF;
+  --accent2: #2A2C35;
+  --accent2-h:#3A3D48;
   --accent3: #3D5AFE;
-  --accent3-bg:#EBEEFC;
-  --success: #1FAE63;
-  --success-h:#178F52;
-  --success-bg:#E4F7EC;
-  --danger:  #E1293D;
-  --danger-h:#BF2033;
-  --danger-bg:#FCE9EB;
-  --warn:    #EDA53A;
-  --text:    #15171B;
-  --text-2:  #6C7076;
-  --text-3:  #A7ABB2;
+  --accent3-bg:rgba(61,90,254,.16);
+  --success: #22C55E;
+  --success-h:#16A34A;
+  --success-bg:rgba(34,197,94,.14);
+  --danger:  #F5455C;
+  --danger-h:#E1293D;
+  --danger-bg:rgba(225,41,61,.16);
+  --warn:    #F5B94A;
+  --warn-h:  #EDA53A;
+  --warn-bg: rgba(237,165,58,.14);
+  --text:    #F1F2F6;
+  --text-1:  #F1F2F6;
+  --text-2:  #9AA0A6;
+  --text-3:  #6C7076;
 
   --v-bg:    #0A0A0C;
   --v-panel: #000000;
-  --v-card:  #1C1C1F;
-  --v-card-h:#2A2A2E;
+  --v-card:  #232429;
+  --v-card-h:#2E2F36;
   --v-text:  #F1F2F6;
   --v-text-2:#9AA0A6;
 
@@ -39,6 +45,37 @@
   --r-lg: 20px;
   --ease: cubic-bezier(.2,.7,.3,1);
   --font: "Segoe UI", -apple-system, "Inter", "Helvetica Neue", Arial, sans-serif;
+
+  /* Right-hand navigation rail — the rest of the app now mirrors this
+     palette (see above); these tokens just describe the rail's own
+     slightly-elevated gradient surface within that shared language. */
+  --nav-bg-1:      #17181D;
+  --nav-bg-2:      #0A0A0C;
+  --nav-border:    rgba(255,255,255,.08);
+  --nav-text:      #8B909A;
+  --nav-text-h:    #D7D9E0;
+  --nav-text-on:   #F5F6FA;
+  --nav-chip:      rgba(255,255,255,.05);
+  --nav-chip-h:    rgba(255,255,255,.10);
+  --nav-accent:    #3D5AFE;
+  --nav-accent-2:  #6B7FFF;
+  --nav-accent-glow: rgba(61,90,254,.45);
+
+  /* Pre-vault "neural" theme — boot splash, home, setup, login. One
+     continuous dark canvas so those screens read as a single surface
+     rather than separate pages. */
+  --neu-bg-1:      #150C07;
+  --neu-bg-2:      #0A0603;
+  --neu-panel:     rgba(26,17,11,.62);
+  --neu-panel-edge:rgba(255,138,61,.16);
+  --neu-border:    rgba(255,158,89,.18);
+  --neu-text:      #F5EDE6;
+  --neu-text-2:    #C9B8AC;
+  --neu-text-3:    #8C7A6E;
+  --neu-orange:    #FF6A00;
+  --neu-orange-2:  #FFA23D;
+  --neu-orange-3:  #FFC98A;
+  --neu-glow:      rgba(255,106,0,.5);
 }
 
 *{ box-sizing: border-box; }
@@ -52,112 +89,352 @@ img{ -webkit-user-drag:none; }
 button{ font-family:inherit; }
 ::-webkit-scrollbar{ width:10px; height:10px; }
 ::-webkit-scrollbar-track{ background:transparent; }
-::-webkit-scrollbar-thumb{ background:#D6D8E0; border-radius:8px; }
-::-webkit-scrollbar-thumb:hover{ background:#C3C6D0; }
+::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.12); border-radius:8px; }
+::-webkit-scrollbar-thumb:hover{ background:rgba(255,255,255,.22); }
 
 .hidden{ display:none !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Custom background (gradient presets or a chosen image)
+   ═══════════════════════════════════════════════════════════════════════ */
+#app-bg{ position:fixed; inset:0; z-index:0; background-size:cover; background-position:center; }
+.shell{ position:relative; z-index:1; }
+.auth-wrap{ position:relative; z-index:1; }
+body.custom-bg .main{ background:transparent; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Neural background — the living surface behind boot/home/setup/login.
+   Lives outside #root (see index.html) so swapping screens never touches
+   it; it just keeps drifting underneath, which is what sells the "all one
+   page" feeling as the person moves from intro -> home -> password entry.
+   ═══════════════════════════════════════════════════════════════════════ */
+#neural-bg{
+  position:fixed; inset:0; z-index:0;
+  background:
+    radial-gradient(65% 55% at 50% 28%, rgba(255,106,0,.20), transparent 70%),
+    linear-gradient(160deg, var(--neu-bg-1) 0%, var(--neu-bg-2) 60%, #060402 100%);
+  opacity:1; transition:opacity .7s var(--ease);
+}
+body:not(.pre-auth) #neural-bg{ opacity:0; pointer-events:none; }
+#neural-canvas{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+body.custom-bg .topbar{ background:transparent; }
+body.custom-bg .sidebar{
+  background:linear-gradient(165deg, rgba(23,24,29,.82) 0%, rgba(10,10,12,.82) 100%);
+  backdrop-filter: blur(14px);
+}
+body.custom-bg.custom-bg .auth-wrap{ background:transparent; }
+/* Path/title text has nothing behind it once the topbar itself goes
+   transparent for a custom background — give it the same kind of frosted
+   backing the action buttons already have, so it reads over any photo. */
+body.custom-bg .topbar-title{
+  background:rgba(15,16,20,.72); backdrop-filter:blur(8px);
+  padding:3px 12px; border-radius:10px; display:inline-block;
+}
+body.custom-bg .crumbs{
+  background:rgba(15,16,20,.72); backdrop-filter:blur(8px);
+  padding:4px 10px; border-radius:10px;
+}
+body.custom-bg .meta-line{
+  background:rgba(15,16,20,.72); backdrop-filter:blur(8px);
+  padding:4px 10px; border-radius:10px; display:inline-block;
+}
 
 /* ═══════════════════════════════════════════════════════════════════════
    Buttons
    ═══════════════════════════════════════════════════════════════════════ */
 .btn{
+  position:relative; overflow:hidden; isolation:isolate;
   display:inline-flex; align-items:center; gap:6px; justify-content:center;
-  border:none; border-radius:10px; padding:9px 16px; font-size:13px; font-weight:600;
-  cursor:pointer; transition:transform .12s var(--ease), background .15s var(--ease), box-shadow .15s var(--ease);
-  white-space:nowrap;
+  border:none; border-radius:11px; padding:9px 17px; font-size:13px; font-weight:650;
+  letter-spacing:.1px; cursor:pointer; white-space:nowrap;
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  transition:transform .16s var(--ease), background .18s var(--ease),
+             box-shadow .22s var(--ease), color .18s var(--ease), border-color .18s var(--ease);
+  box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 1px 2px rgba(20,22,30,.06);
 }
-.btn:active{ transform:scale(.96); }
-.btn-primary{ background:var(--accent); color:#fff; }
-.btn-primary:hover{ background:var(--accent-h); }
-.btn-secondary{ background:var(--accent2); color:#fff; }
-.btn-secondary:hover{ background:var(--accent2-h); }
-.btn-ghost{ background:var(--card-2); color:var(--text); }
-.btn-ghost:hover{ background:var(--border); }
-.btn-success-soft{ background:var(--success-bg); color:var(--success-h); }
-.btn-success-soft:hover{ background:#d3f2e0; }
-.btn-danger-soft{ background:var(--danger-bg); color:var(--danger-h); }
-.btn-danger-soft:hover{ background:#fadadf; }
-.btn-danger{ background:var(--danger); color:#fff; }
-.btn-danger:hover{ background:var(--danger-h); }
-.btn-sm{ padding:6px 11px; font-size:12px; border-radius:8px; }
-.btn-icon{ padding:8px; border-radius:9px; }
-.btn:disabled{ opacity:.45; cursor:default; pointer-events:none; }
+/* Shared hover "sheen" sweep — the same diagonal light pass used on the
+   boot-splash lock and the nav rail, so the motion feels like one system. */
+.btn::after{
+  content:""; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background:linear-gradient(115deg, transparent 40%, rgba(255,255,255,.30) 50%, transparent 60%);
+  transform:translateX(-120%); transition:transform .55s var(--ease);
+}
+.btn:hover::after{ transform:translateX(120%); }
+.btn > *{ position:relative; z-index:2; }
+.btn:hover{ transform:translateY(-2px); }
+.btn:active{ transform:translateY(0) scale(.965); transition-duration:.08s; }
+.btn:focus-visible{ outline:2px solid var(--nav-accent); outline-offset:2px; }
+
+.btn-primary{ background:linear-gradient(160deg, var(--accent-h) 0%, var(--accent) 100%); color:#fff; }
+.btn-primary:hover{ box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 12px 24px -10px rgba(61,90,254,.6); }
+
+.btn-secondary{ background:linear-gradient(160deg, #9C6BFF 0%, #6B3FE0 100%); color:#fff; }
+.btn-secondary:hover{ box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 12px 24px -10px rgba(139,71,255,.55); }
+
+/* Ghost used to be flat near-black (var(--card-2), barely distinguishable
+   from the app background) on ~80 buttons across the app — the single
+   biggest source of "everything is black". It's now a colorful, glassy
+   indigo tint that still reads as a secondary/neutral action, just not
+   a black hole. */
+.btn-ghost{
+  background:linear-gradient(160deg, rgba(107,127,255,.20) 0%, rgba(61,90,254,.09) 100%);
+  color:var(--text);
+  box-shadow:0 0 0 1px rgba(107,127,255,.28) inset, 0 1px 0 rgba(255,255,255,.06) inset;
+}
+.btn-ghost:hover{
+  background:linear-gradient(160deg, rgba(107,127,255,.32) 0%, rgba(61,90,254,.16) 100%);
+  box-shadow:0 0 0 1px rgba(107,127,255,.45) inset, 0 10px 20px -10px rgba(61,90,254,.45);
+}
+
+.btn-success-soft{ background:var(--success-bg); color:var(--success-h); box-shadow:0 0 0 1px rgba(31,174,99,.16) inset; }
+.btn-success-soft:hover{ background:#d3f2e0; box-shadow:0 0 0 1px rgba(31,174,99,.22) inset, 0 8px 16px -10px rgba(31,174,99,.45); }
+
+.btn-danger-soft{ background:var(--danger-bg); color:var(--danger-h); box-shadow:0 0 0 1px rgba(225,41,61,.16) inset; }
+.btn-danger-soft:hover{ background:#fadadf; box-shadow:0 0 0 1px rgba(225,41,61,.22) inset, 0 8px 16px -10px rgba(225,41,61,.45); }
+
+.btn-danger{ background:linear-gradient(160deg, var(--danger-h) 0%, var(--danger) 100%); color:#fff; }
+.btn-danger:hover{ box-shadow:0 1px 0 rgba(255,255,255,.14) inset, 0 12px 24px -10px rgba(225,41,61,.55); }
+
+.btn-sm{ padding:6px 12px; font-size:12px; border-radius:9px; }
+/* Icon-only buttons (⋮ menus, close buttons, etc.) get their own subtle
+   teal-glass tint so they read as distinct from ghost text buttons rather
+   than both collapsing into "the same dark square". */
+.btn-icon{
+  padding:8px; border-radius:10px;
+  background:rgba(45,212,191,.14); box-shadow:0 0 0 1px rgba(45,212,191,.22) inset;
+}
+.btn-icon:hover{ background:rgba(45,212,191,.24); box-shadow:0 0 0 1px rgba(45,212,191,.35) inset, 0 8px 16px -10px rgba(45,212,191,.4); }
+.btn:disabled{ opacity:.45; cursor:default; pointer-events:none; transform:none !important; }
+.btn:disabled::after{ display:none; }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   Auth screens (setup / login)
+   Auth screens (home / setup / login) — dark glass over #neural-bg
    ═══════════════════════════════════════════════════════════════════════ */
 .auth-wrap{
   height:100%; display:flex; align-items:center; justify-content:center;
-  background:
-    radial-gradient(1200px 600px at 15% -10%, #ffffff 0%, transparent 60%),
-    var(--bg);
+  background:transparent;
 }
 .auth-card{
-  width:400px; max-width:90vw; background:var(--panel); border:1px solid var(--border);
-  border-radius:var(--r-lg); box-shadow:var(--shadow-lg); padding:40px 40px 32px;
-  animation: cardIn .35s var(--ease);
+  position:relative; width:400px; max-width:90vw;
+  background:var(--neu-panel); backdrop-filter:blur(22px);
+  border:1px solid var(--neu-border); border-radius:var(--r-lg);
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 30px 70px -24px rgba(0,0,0,.65),
+             0 0 0 1px rgba(0,0,0,.3);
+  padding:40px 40px 32px; color:var(--neu-text);
+  animation: cardIn .45s var(--ease);
+  overflow:hidden;
+  /* Inline styles elsewhere (e.g. the setup screen's storage-location row)
+     reference these general tokens directly — redefining them for anything
+     inside the auth card keeps that markup dark-theme-correct for free. */
+  --card-2: rgba(255,255,255,.05);
+  --text-3: var(--neu-text-3);
 }
-@keyframes cardIn{ from{ opacity:0; transform:translateY(10px) scale(.98);} to{opacity:1; transform:none;} }
+/* a hairline of accent light along the top edge, like a circuit trace */
+.auth-card::before{
+  content:""; position:absolute; top:0; left:14%; right:14%; height:1px;
+  background:linear-gradient(90deg, transparent, var(--neu-orange-2), transparent);
+  opacity:.8;
+}
+@keyframes cardIn{ from{ opacity:0; transform:translateY(14px) scale(.97);} to{opacity:1; transform:none;} }
 .auth-logo{
-  width:64px; height:64px; border-radius:50%; background:var(--card-2);
-  border:1.5px solid var(--accent); display:flex; align-items:center; justify-content:center;
+  position:relative; width:64px; height:64px; border-radius:50%;
+  background:radial-gradient(circle at 32% 28%, rgba(255,178,110,.25), rgba(23,13,8,.9) 70%);
+  border:1.5px solid var(--neu-orange); display:flex; align-items:center; justify-content:center;
   font-size:26px; margin:0 auto 18px;
+  box-shadow:0 0 0 5px rgba(255,106,0,.08), 0 0 24px -4px var(--neu-glow);
+  animation: authLogoPulse 3.2s ease-in-out infinite;
 }
-.auth-title{ text-align:center; font-size:22px; font-weight:800; margin:0; }
-.auth-sub{ text-align:center; color:var(--text-2); font-size:12.5px; margin:4px 0 26px; }
+@keyframes authLogoPulse{
+  0%,100%{ box-shadow:0 0 0 5px rgba(255,106,0,.08), 0 0 24px -4px var(--neu-glow); }
+  50%{ box-shadow:0 0 0 8px rgba(255,106,0,.12), 0 0 34px 0 var(--neu-glow); }
+}
+.auth-title{ text-align:center; font-size:22px; font-weight:800; margin:0; color:var(--neu-text); letter-spacing:.2px; }
+.auth-sub{ text-align:center; color:var(--neu-text-2); font-size:12.5px; margin:4px 0 26px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Home screen
+   ═══════════════════════════════════════════════════════════════════════ */
+.home-card{ text-align:center; padding-bottom:36px; }
+.home-logo{ width:76px; height:76px; font-size:32px; }
+.home-tagline{ font-size:12px; color:var(--neu-text-3); line-height:1.6; margin:0 0 26px; }
+.home-cta{ margin-top:2px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Vault-opening animation — plays once right after a successful login
+   ═══════════════════════════════════════════════════════════════════════ */
+.vault-enter-host{ position:relative; width:100%; height:100%; }
+.vault-enter-overlay{
+  position:fixed; inset:0; z-index:150; display:flex; align-items:center; justify-content:center;
+}
+.vault-enter-door{
+  position:absolute; top:0; bottom:0; width:50%; z-index:1;
+  background:
+    radial-gradient(900px 900px at 50% 50%, #2B2E37 0%, #14151A 70%);
+  transition: transform .68s cubic-bezier(.65,0,.35,1);
+}
+.vault-enter-door.left{ left:0; border-right:1px solid rgba(255,255,255,.06); }
+.vault-enter-door.right{ right:0; border-left:1px solid rgba(255,255,255,.06); }
+.vault-enter-door.has-bg::after{
+  content:""; position:absolute; inset:0; background:rgba(8,9,13,.5);
+}
+.vault-enter-overlay.opening .vault-enter-door.left{ transform:translateX(-100%); }
+.vault-enter-overlay.opening .vault-enter-door.right{ transform:translateX(100%); }
+
+.vault-enter-center{
+  position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:14px;
+  transition:opacity .3s var(--ease), transform .3s var(--ease);
+}
+.vault-enter-overlay.opening .vault-enter-center{ opacity:0; transform:scale(.85); }
+
+.vault-enter-lock{ font-size:40px; transition:transform .25s cubic-bezier(.34,1.56,.64,1); }
+.vault-enter-lock.pop{ transform:scale(1.25) rotate(-6deg); }
+.vault-enter-ring{
+  position:absolute; width:88px; height:88px; border-radius:50%;
+  border:2px solid rgba(255,255,255,.14); border-top-color:var(--neu-orange-2);
+  box-shadow:0 0 22px -4px var(--neu-glow);
+  animation: vaultRingSpin .9s linear infinite;
+}
+@keyframes vaultRingSpin{ to{ transform:rotate(360deg); } }
+.vault-enter-text{ color:#F1F2F6; font-size:13px; letter-spacing:.3px; }
 .field{ margin-bottom:16px; }
 .field label{
   display:flex; align-items:center; gap:6px; font-size:12.5px; font-weight:600;
-  color:var(--text-2); margin-bottom:6px;
+  color:var(--neu-text-2); margin-bottom:6px;
 }
-.field-hint{ font-size:11px; color:var(--text-3); font-weight:400; }
+.field-hint{ font-size:11px; color:var(--neu-text-3); font-weight:400; }
 .pw-row{ position:relative; display:flex; }
 .pw-row input{
-  flex:1; border:1px solid var(--border); border-radius:10px; padding:10px 40px 10px 12px;
+  flex:1; border:1px solid var(--neu-border); border-radius:10px; padding:10px 40px 10px 12px;
   font-size:14px; outline:none; transition:border-color .15s var(--ease), box-shadow .15s var(--ease);
-  background:var(--panel); color:var(--text);
+  background:rgba(0,0,0,.28); color:var(--neu-text);
 }
-.pw-row input:focus{ border-color:var(--accent3); box-shadow:0 0 0 3px var(--accent3-bg); }
+.pw-row input::placeholder{ color:var(--neu-text-3); }
+.pw-row input:focus{ border-color:var(--neu-orange); box-shadow:0 0 0 3px rgba(255,106,0,.16); }
 .pw-toggle{
   position:absolute; right:4px; top:4px; bottom:4px; width:34px; border:none; background:transparent;
-  color:var(--text-3); cursor:pointer; border-radius:8px; display:flex; align-items:center; justify-content:center;
+  color:var(--neu-text-3); cursor:pointer; border-radius:8px; display:flex; align-items:center; justify-content:center;
 }
-.pw-toggle:hover{ background:var(--card-2); color:var(--text); }
-.auth-info{ background:var(--card-2); border-radius:10px; padding:12px 14px; font-size:11.5px; color:var(--text-2); margin:6px 0 22px; line-height:1.85; }
-.auth-info b{ color:var(--text); }
-.auth-info .danger-line{ color:var(--danger); }
-.auth-err{ background:var(--danger-bg); color:var(--danger-h); border-radius:10px; padding:10px 12px; font-size:12.5px; margin-bottom:14px; display:none; }
+.pw-toggle:hover{ background:rgba(255,255,255,.06); color:var(--neu-orange-2); }
+.auth-info{ background:rgba(255,255,255,.04); border:1px solid var(--neu-border); border-radius:10px; padding:12px 14px; font-size:11.5px; color:var(--neu-text-2); margin:6px 0 22px; line-height:1.85; }
+.auth-info b{ color:var(--neu-text); }
+.auth-info .danger-line{ color:#FF8A6B; }
+.auth-err{ background:rgba(225,41,61,.14); border:1px solid rgba(225,41,61,.3); color:#FF9AA6; border-radius:10px; padding:10px 12px; font-size:12.5px; margin-bottom:14px; display:none; }
 .auth-err.show{ display:block; }
 .btn-block{ width:100%; padding:12px; font-size:14px; border-radius:12px; }
+.auth-card .btn-ghost{ background:rgba(255,255,255,.06); color:var(--neu-text); box-shadow:0 0 0 1px var(--neu-border) inset; }
+.auth-card .btn-ghost:hover{ background:rgba(255,255,255,.1); box-shadow:0 0 0 1px var(--neu-border) inset; }
+/* Premium orange CTA used only on the pre-vault screens */
+.btn-neural{
+  background:linear-gradient(150deg, var(--neu-orange-2) 0%, var(--neu-orange) 100%);
+  color:#1A0D05; box-shadow:0 1px 0 rgba(255,255,255,.35) inset, 0 12px 26px -10px var(--neu-glow);
+}
+.btn-neural:hover{ box-shadow:0 1px 0 rgba(255,255,255,.4) inset, 0 16px 32px -10px var(--neu-glow); }
+
+/* Energy pulse fired from a button on the pre-vault screens when moving
+   to the next step — a small traveling glow so the transition reads as
+   "this screen feeding into the next" rather than a hard cut. */
+.neural-pulse{
+  position:fixed; z-index:200; width:10px; height:10px; border-radius:50%;
+  background:radial-gradient(circle, #FFE3C2 0%, var(--neu-orange) 55%, transparent 75%);
+  box-shadow:0 0 18px 4px var(--neu-glow);
+  pointer-events:none; transform:translate(-50%,-50%);
+  animation: neuralPulseRise .62s cubic-bezier(.3,.7,.4,1) forwards;
+}
+@keyframes neuralPulseRise{
+  0%{ opacity:1; transform:translate(-50%,-50%) scale(1); }
+  70%{ opacity:.9; }
+  100%{ opacity:0; transform:translate(-50%,-220%) scale(.4); }
+}
+/* Card hand-off: the outgoing card sinks back slightly while the next
+   one arrives, instead of an instant swap. */
+.auth-card.card-leaving{
+  animation: cardOut .28s var(--ease) forwards;
+}
+@keyframes cardOut{ to{ opacity:0; transform:translateY(-8px) scale(.98); } }
+
 
 /* ═══════════════════════════════════════════════════════════════════════
    App shell
    ═══════════════════════════════════════════════════════════════════════ */
 .shell{ display:flex; height:100%; }
-.sidebar{
-  width:220px; background:var(--panel); border-right:1px solid var(--border);
-  display:flex; flex-direction:column; padding:18px 12px; flex-shrink:0;
-}
-.brand{ display:flex; align-items:center; gap:10px; padding:6px 8px 20px; }
-.brand-badge{
-  width:34px; height:34px; border-radius:50%; background:var(--card-2); border:1px solid var(--accent);
-  display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0;
-}
-.brand-name{ font-weight:800; font-size:15px; }
-.nav-item{
-  display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:10px; cursor:pointer;
-  color:var(--text-2); font-size:13.5px; font-weight:600; margin-bottom:2px;
-  transition:background .15s var(--ease), color .15s var(--ease);
-}
-.nav-item:hover{ background:var(--card-2); color:var(--text); }
-.nav-item.active{ background:var(--card-sel); color:var(--text); }
-.nav-item.active .nav-ico{ color:var(--accent3); }
-.nav-ico{ font-size:15px; width:18px; text-align:center; }
-.sidebar-spacer{ flex:1; }
-.sidebar-stats{ border-top:1px solid var(--border); padding-top:14px; font-size:11.5px; color:var(--text-3); }
-.sidebar-stats b{ color:var(--text); display:block; font-size:13px; margin-bottom:2px; }
 
-.main{ flex:1; display:flex; flex-direction:column; min-width:0; background:var(--bg); position:relative; }
+/* ═══════════════════════════════════════════════════════════════════════
+   Navigation rail — floats on the right, dark against the light canvas.
+   Same near-black gradient + accent glow as the boot-splash, so the one
+   piece of chrome that's always on screen carries the brand consistently.
+   ═══════════════════════════════════════════════════════════════════════ */
+.sidebar{
+  order:2; width:226px; flex-shrink:0; margin:14px 14px 14px 0;
+  background:linear-gradient(165deg, var(--nav-bg-1) 0%, var(--nav-bg-2) 100%);
+  border:1px solid var(--nav-border); border-radius:var(--r-lg);
+  box-shadow:0 24px 48px -20px rgba(10,10,14,.45), 0 1px 0 rgba(255,255,255,.05) inset;
+  display:flex; flex-direction:column; padding:18px 14px 16px;
+  position:relative; overflow:hidden;
+}
+/* faint ambient glow behind the brand mark, echoing the splash-screen ring */
+.sidebar::before{
+  content:""; position:absolute; top:-60px; right:-60px; width:190px; height:190px;
+  border-radius:50%; pointer-events:none;
+  background:radial-gradient(circle, var(--nav-accent-glow) 0%, transparent 70%);
+  opacity:.5;
+}
+
+.brand{ display:flex; align-items:center; gap:11px; padding:4px 6px 20px; position:relative; z-index:1; }
+.brand-badge{
+  width:36px; height:36px; border-radius:12px;
+  background:linear-gradient(150deg, var(--nav-accent-2) 0%, var(--nav-accent) 100%);
+  box-shadow:0 0 0 1px rgba(255,255,255,.08) inset, 0 6px 16px -6px var(--nav-accent-glow);
+  display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;
+}
+.brand-name{ font-weight:800; font-size:14.5px; letter-spacing:.4px; color:var(--nav-text-on); }
+
+.nav-item{
+  position:relative; z-index:1; overflow:hidden; isolation:isolate;
+  display:flex; align-items:center; gap:11px; padding:9px 11px; border-radius:12px; cursor:pointer;
+  color:var(--nav-text); font-size:13px; font-weight:600; margin-bottom:3px;
+  transition:background .2s var(--ease), color .2s var(--ease), transform .2s var(--ease);
+}
+/* diagonal sheen sweep on hover — the same motion language as the buttons
+   and the boot-splash lock sweep */
+.nav-item::before{
+  content:""; position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:linear-gradient(115deg, transparent 35%, rgba(255,255,255,.08) 50%, transparent 65%);
+  transform:translateX(-130%); transition:transform .6s var(--ease);
+}
+.nav-item:hover::before{ transform:translateX(130%); }
+.nav-item > *{ position:relative; z-index:1; }
+.nav-item:hover{ background:var(--nav-chip); color:var(--nav-text-h); transform:translateX(-2px); }
+.nav-item.active{
+  background:linear-gradient(135deg, rgba(61,90,254,.22) 0%, rgba(61,90,254,.08) 100%);
+  color:var(--nav-text-on);
+  box-shadow:0 0 0 1px rgba(61,90,254,.28) inset;
+}
+/* a thin lit filament that reaches out to the rail's own edge */
+.nav-item.active::after{
+  content:""; position:absolute; right:-14px; top:50%; translate:0 -50%; z-index:2;
+  width:3px; height:58%; border-radius:3px 0 0 3px;
+  background:linear-gradient(var(--nav-accent-2), var(--nav-accent));
+  box-shadow:0 0 10px 1px var(--nav-accent-glow);
+}
+.nav-item.active .nav-ico{
+  background:linear-gradient(150deg, var(--nav-accent-2) 0%, var(--nav-accent) 100%);
+  box-shadow:0 0 0 4px rgba(61,90,254,.14), 0 6px 14px -4px var(--nav-accent-glow);
+  color:#fff; transform:scale(1.04);
+}
+.nav-ico{
+  width:30px; height:30px; border-radius:9px; background:var(--nav-chip);
+  display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0;
+  transition:background .2s var(--ease), box-shadow .2s var(--ease), transform .2s var(--ease);
+}
+.nav-item:hover .nav-ico{ background:var(--nav-chip-h); transform:translateY(-1px); }
+.sidebar-spacer{ flex:1; }
+.sidebar-stats{
+  border-top:1px solid var(--nav-border); padding-top:14px; font-size:11.5px; color:var(--nav-text);
+  position:relative; z-index:1;
+}
+.sidebar-stats b{ color:var(--nav-text-on); display:block; font-size:13px; margin-bottom:2px; }
+
+.main{ flex:1; order:1; display:flex; flex-direction:column; min-width:0; background:var(--bg); position:relative; }
 
 .topbar{
   padding:18px 26px 14px; display:flex; flex-direction:column; gap:12px; flex-shrink:0;
@@ -190,67 +467,271 @@ button{ font-family:inherit; }
 
 .content{ flex:1; overflow-y:auto; padding:6px 26px 40px; }
 
+/* ═══════════════════════════════════════════════════════════════════════
+   "Your Text" — a stack of freeform text cards below Favorites. Each card
+   has its own accent color: a dark shade behind the header/buttons and a
+   light tint of that same color behind the body text. Cards sit in a
+   responsive grid — fixed-height tiles with a clamped text preview, so
+   every card lines up regardless of how much text it holds. Opening a
+   card's editor still shows the full text.
+   ═══════════════════════════════════════════════════════════════════════ */
+.content.notes-view{ display:flex; flex-direction:column; padding:16px 26px 40px; overflow-y:auto; }
+.notes-list{
+  display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr));
+  gap:18px; width:100%; max-width:100%; align-items:stretch;
+}
+.note-card{
+  position:relative; width:100%; height:236px; box-sizing:border-box;
+  border:1.5px solid var(--border); border-radius:var(--r-md);
+  overflow:hidden; display:flex; flex-direction:column;
+  background:rgba(30,31,38,.55);
+  backdrop-filter:blur(4px);
+  -webkit-backdrop-filter:blur(4px);
+  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
+  transition:box-shadow .18s var(--ease), transform .18s var(--ease), border-color .18s var(--ease);
+}
+/* glossy top highlight, like light catching curved glass */
+.note-card::after{
+  content:""; position:absolute; inset:0 0 auto 0; height:46%; z-index:1; pointer-events:none;
+  background:linear-gradient(180deg, rgba(255,255,255,.10) 0%, rgba(255,255,255,0) 100%);
+}
+.note-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.12); }
+.note-card.selected{ box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.12); }
+.note-card-hdr{
+  position:relative; z-index:0;
+  display:flex; align-items:center; justify-content:space-between; gap:10px;
+  padding:10px 14px; color:#fff; flex-shrink:0;
+  backdrop-filter:blur(18px) saturate(180%);
+  -webkit-backdrop-filter:blur(18px) saturate(180%);
+  border-bottom:1px solid rgba(255,255,255,.22);
+}
+.note-card-title-wrap{ min-width:0; flex:1; }
+.note-card-title{
+  font-size:14px; font-weight:800; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.note-card-date{ font-size:10.5px; font-weight:600; color:rgba(255,255,255,.75); margin-top:1px; }
+.note-card-actions{ display:flex; align-items:center; gap:7px; flex-shrink:0; }
+
+/* Premium button treatment: a subtle glass highlight over the note's own
+   dark accent color (passed in as --nb), a soft depth shadow, and a gentle
+   lift + brighten on hover so the three actions feel tactile, not flat. */
+.note-btn{
+  --nb: var(--accent);
+  border:none; color:#fff; width:31px; height:31px; border-radius:9px; cursor:pointer; font-size:14px;
+  display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(155deg, rgba(255,255,255,.38), rgba(255,255,255,0) 65%), var(--nb);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 2px rgba(0,0,0,.18), 0 2px 5px rgba(0,0,0,.22);
+  transition: transform .12s var(--ease), box-shadow .15s var(--ease), filter .15s var(--ease);
+}
+.note-btn:hover{
+  filter:brightness(1.12); transform:translateY(-1.5px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.38), inset 0 -1px 2px rgba(0,0,0,.18), 0 5px 12px rgba(0,0,0,.28);
+}
+.note-btn:active{ transform:translateY(0) scale(.93); }
+
+/* "＋ Add Text" — a premium gradient pill with a glassy top sheen. */
+.btn-premium{
+  background: linear-gradient(155deg, rgba(255,255,255,.32), rgba(255,255,255,0) 60%), linear-gradient(135deg, var(--accent3), #6C3DFE);
+  color:#fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 3px 10px rgba(61,90,254,.35);
+  transition: transform .12s var(--ease), box-shadow .15s var(--ease), filter .15s var(--ease);
+}
+.btn-premium:hover{ filter:brightness(1.08); transform:translateY(-1px); box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 6px 16px rgba(61,90,254,.42); }
+.btn-premium:active{ transform:translateY(0) scale(.96); }
+
+/* Sort controls */
+.sort-pills{ display:flex; align-items:center; gap:6px; }
+.sort-pills-label{ font-size:12px; color:var(--text-3); margin-right:2px; }
+.sort-pill{
+  border:1px solid var(--border); background:var(--panel); color:var(--text-2); font-size:12px; font-weight:600;
+  padding:5px 11px; border-radius:20px; cursor:pointer; display:flex; align-items:center; gap:5px;
+  transition:background .15s var(--ease), color .15s var(--ease), border-color .15s var(--ease);
+}
+.sort-pill:hover{ background:var(--card-2); color:var(--text); }
+.sort-pill.active{ background:var(--card-sel); color:var(--accent3); border-color:var(--accent3-bg); }
+.sort-arrow{ font-size:11px; }
+
+/* Color picker: big preview circle + full-spectrum gradient bar + presets */
+.color-picker-wrap{ margin-top:8px; }
+.color-picker-top{ display:flex; align-items:center; gap:14px; }
+.color-preview-circle{
+  width:44px; height:44px; border-radius:50%; flex-shrink:0; border:3px solid var(--panel);
+  box-shadow:0 0 0 1.5px var(--border), inset 0 1px 2px rgba(0,0,0,.15);
+}
+.color-gradient-bar{
+  position:relative; flex:1; height:16px; border-radius:20px; cursor:pointer;
+  background:linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.25);
+}
+.color-gradient-handle{
+  position:absolute; top:50%; width:20px; height:20px; border-radius:50%; background:#fff;
+  border:2.5px solid var(--panel); box-shadow:0 1px 4px rgba(0,0,0,.35);
+  transform:translate(-50%, -50%); pointer-events:none;
+}
+.color-swatches{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+.color-swatch{
+  width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent; box-shadow:0 1px 3px rgba(0,0,0,.2);
+  transition:transform .1s var(--ease), border-color .1s var(--ease);
+}
+.color-swatch:hover{ transform:scale(1.1); }
+.color-swatch.active{ border-color:var(--text); transform:scale(1.15); }
+.note-card-body{
+  position:relative; z-index:0;
+  padding:14px 18px; box-sizing:border-box; flex:1; min-height:0; overflow:hidden; cursor:pointer;
+  backdrop-filter:blur(22px) saturate(160%);
+  -webkit-backdrop-filter:blur(22px) saturate(160%);
+}
+.note-card-text{
+  font-size:13.5px; line-height:1.6; color:var(--text); white-space:pre-wrap; word-break:break-word;
+  display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:6; overflow:hidden;
+}
+.note-card-empty{ color:var(--text-3); font-style:italic; }
+.notes-empty{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  padding:60px 20px; color:var(--text-3); text-align:center;
+}
+.notes-empty-ico{ font-size:36px; margin-bottom:4px; }
+.notes-empty-title{ font-size:15px; font-weight:700; color:var(--text-2); }
+.notes-empty-sub{ font-size:12.5px; }
+.notes-bulkbar{
+  position:sticky; bottom:0; margin-top:6px; display:flex; align-items:center; justify-content:space-between;
+  background:var(--panel); border:1px solid var(--border); border-radius:var(--r-md); box-shadow:var(--shadow-lg);
+  padding:10px 16px; font-size:13px; font-weight:700; color:var(--text);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Master vault "blank on entry" — content stays off-screen until scrolled
+   ═══════════════════════════════════════════════════════════════════════ */
+.vault-blank-spacer{
+  height:72vh; min-height:340px; display:flex; align-items:flex-end; justify-content:center; padding-bottom:26px;
+}
+.vault-blank-hint{
+  display:flex; flex-direction:column; align-items:center; gap:6px; color:var(--text-3); font-size:12px;
+  opacity:.65; animation: blankHintBounce 2.4s ease-in-out infinite;
+}
+.vault-blank-arrow{ font-size:16px; }
+@keyframes blankHintBounce{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(7px); } }
+
 .section-hdr{ display:flex; align-items:center; gap:10px; margin:22px 0 10px; }
 .section-hdr h2{ font-size:16px; font-weight:800; margin:0; }
 .section-count{ background:var(--card-sel); color:var(--accent3); font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; }
 .section-line{ flex:1; height:1px; background:var(--border); }
 
 /* ═══════════════════════════════════════════════════════════════════════
-   Grid / tiles
+   Grid / tiles — photo-forward cards: square thumbnail fills the whole
+   card, name/size sit in a gradient scrim over the image (gallery-app
+   style) instead of a separate white footer panel.
    ═══════════════════════════════════════════════════════════════════════ */
-.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(168px,1fr)); gap:16px; }
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(178px,1fr)); gap:18px; }
 
 .tile{
-  position:relative; background:var(--card); border:1px solid var(--border); border-radius:var(--r-md);
-  overflow:hidden; cursor:pointer; box-shadow:var(--shadow); transition:transform .16s var(--ease), box-shadow .16s var(--ease), border-color .16s var(--ease);
-  animation: tileIn .25s var(--ease) backwards;
+  position:relative; aspect-ratio:1/1; border-radius:16px; background:var(--card-2);
+  overflow:hidden; cursor:pointer; box-shadow:var(--shadow);
+  transition:transform .2s var(--ease), box-shadow .2s var(--ease);
+  animation: tileIn .28s var(--ease) backwards;
 }
-@keyframes tileIn{ from{ opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
-.tile:hover{ transform:translateY(-3px); box-shadow:var(--shadow-lg); border-color:#D9DBE3; }
-.tile.selected{ outline:2px solid var(--accent3); outline-offset:-2px; }
+@keyframes tileIn{ from{ opacity:0; transform:translateY(8px) scale(.97);} to{opacity:1; transform:none;} }
+.tile:hover{ transform:translateY(-4px); box-shadow:var(--shadow-lg); }
+.tile.selected{ outline:3px solid var(--accent3); outline-offset:-3px; }
 
 .tile-thumb{
-  position:relative; width:100%; aspect-ratio:4/3; background:var(--card-2);
-  display:flex; align-items:center; justify-content:center; overflow:hidden;
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center; overflow:hidden;
+  background:linear-gradient(160deg, var(--card-2), var(--border));
 }
-.tile-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-.tile-thumb .icon-fallback{ font-size:36px; opacity:.55; }
+.tile-thumb img{
+  position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block;
+  transition:transform .4s var(--ease);
+}
+.tile:hover .tile-thumb img{ transform:scale(1.09); }
+.tile-thumb .icon-fallback{ position:relative; font-size:40px; opacity:.55; }
+
+.tile-scrim{
+  position:absolute; left:0; right:0; bottom:0; padding:26px 11px 9px; z-index:1;
+  background:linear-gradient(to top, rgba(10,11,15,.78) 0%, rgba(10,11,15,.4) 55%, transparent 100%);
+  pointer-events:none;
+  opacity:0; transition:opacity .18s var(--ease);
+}
+.tile:hover .tile-scrim, .tile:focus-within .tile-scrim{ opacity:1; }
+.tile-name{
+  font-size:12px; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  text-shadow:0 1px 2px rgba(0,0,0,.35);
+}
+.tile-meta{
+  font-size:10.5px; color:rgba(255,255,255,.8); margin-top:1px; max-height:0; opacity:0;
+  overflow:hidden; transition:max-height .18s var(--ease), opacity .18s var(--ease);
+}
+.tile:hover .tile-meta{ max-height:16px; opacity:1; }
 
 .badge-folder{
-  position:absolute; right:7px; bottom:7px; background:rgba(21,23,27,.82); color:#fff;
-  border-radius:7px; width:26px; height:26px; display:flex; align-items:center; justify-content:center; font-size:13px;
+  position:absolute; right:9px; bottom:9px; z-index:2; background:rgba(255,255,255,.94); color:var(--text);
+  border-radius:8px; width:27px; height:27px; display:flex; align-items:center; justify-content:center; font-size:13px;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+  pointer-events:none; /* decorative only — must never steal clicks meant for buttons above it */
 }
-.badge-play{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; }
+.badge-play{
+  position:absolute; inset:0; z-index:2; display:flex; align-items:center; justify-content:center;
+  pointer-events:none; /* covers the whole tile visually, so this is critical: without it, this
+                           invisible layer sits above the hover-action buttons/checkbox (they have
+                           no z-index of their own) and intercepts every click meant for them */
+}
 .badge-play .circle{
-  width:40px; height:40px; border-radius:50%; background:rgba(15,17,27,.55);
-  display:flex; align-items:center; justify-content:center;
+  width:44px; height:44px; border-radius:50%; background:rgba(12,13,18,.5); backdrop-filter:blur(2px);
+  display:flex; align-items:center; justify-content:center; transition:transform .18s var(--ease), background .18s var(--ease);
 }
-.badge-play svg{ width:14px; height:14px; fill:#fff; margin-left:2px; }
+.tile:hover .badge-play .circle{ transform:scale(1.08); background:rgba(12,13,18,.66); }
+.badge-play svg{ width:15px; height:15px; fill:#fff; margin-left:2px; }
 
 .tile-select{
-  position:absolute; top:8px; left:8px; width:22px; height:22px; border-radius:7px;
-  background:rgba(255,255,255,.9); border:1.5px solid #D3D5DE; display:flex; align-items:center; justify-content:center;
-  opacity:0; transition:opacity .12s var(--ease), background .12s var(--ease), border-color .12s var(--ease);
-  font-size:12px; color:#fff;
+  position:absolute; top:9px; left:9px; z-index:3; width:23px; height:23px; border-radius:50%;
+  background:rgba(15,17,27,.35); backdrop-filter:blur(3px); border:1.5px solid rgba(255,255,255,.8);
+  display:flex; align-items:center; justify-content:center; opacity:0;
+  transition:opacity .14s var(--ease), background .14s var(--ease), border-color .14s var(--ease), transform .14s var(--ease);
+  font-size:11.5px; color:#fff;
 }
 .tile:hover .tile-select, .select-mode .tile-select, .tile.selected .tile-select{ opacity:1; }
-.tile.selected .tile-select{ background:var(--accent3); border-color:var(--accent3); }
+.tile.selected .tile-select{ background:var(--accent3); border-color:var(--accent3); transform:scale(1.06); }
 
 .tile-hover-actions{
-  position:absolute; top:8px; right:8px; display:flex; gap:4px; opacity:0; transition:opacity .12s var(--ease);
+  position:absolute; top:9px; right:9px; z-index:3; display:flex; gap:3px; padding:3px;
+  background:rgba(12,13,18,.4); backdrop-filter:blur(6px); border-radius:11px;
+  opacity:0; transform:translateY(-4px); transition:opacity .14s var(--ease), transform .14s var(--ease);
 }
-.tile:hover .tile-hover-actions{ opacity:1; }
+.tile:hover .tile-hover-actions{ opacity:1; transform:none; }
 .tile-action-btn{
-  width:26px; height:26px; border-radius:7px; background:rgba(255,255,255,.94); border:none;
-  display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12.5px; color:var(--text);
-  box-shadow:0 1px 3px rgba(0,0,0,.15);
+  width:25px; height:25px; border-radius:8px; background:rgba(255,255,255,.16); border:none;
+  display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:12px; color:#fff;
+  transition:background .12s var(--ease), transform .12s var(--ease);
 }
-.tile-action-btn:hover{ background:#fff; transform:scale(1.06); }
-.tile-action-btn.danger:hover{ color:var(--danger); }
+.tile-action-btn:hover{ background:rgba(255,255,255,.34); transform:scale(1.08); }
+.tile-action-btn.danger:hover{ background:rgba(255,90,110,.55); }
 
-.tile-info{ padding:9px 10px 11px; }
-.tile-name{ font-size:12.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.tile-meta{ font-size:11px; color:var(--text-3); margin-top:2px; }
+/* "More actions" (\u22EF) button — replaces what used to be a full row of
+   icon buttons that ran wider than the tile itself. Clicking it opens
+   .tile-actions-popover, a blurred grid layered over this same tile. */
+.tile-menu-btn{ font-size:15px; font-weight:700; letter-spacing:1px; }
+.tile-menu-btn.active{ background:rgba(255,255,255,.4); }
+
+.tile-actions-popover{
+  position:absolute; inset:0; z-index:6; display:none; grid-template-columns:repeat(3, 1fr);
+  gap:7px; align-content:center; justify-items:stretch; padding:14px; border-radius:16px;
+  background:rgba(10,11,15,.55); backdrop-filter:blur(9px); -webkit-backdrop-filter:blur(9px);
+}
+.tile-actions-popover.open{ display:grid; animation: popoverIn .14s var(--ease); }
+@keyframes popoverIn{ from{ opacity:0; transform:scale(.96); } to{ opacity:1; transform:none; } }
+
+.tile-popover-btn{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
+  background:rgba(255,255,255,.14); border:none; border-radius:10px; padding:7px 3px; cursor:pointer;
+  color:#fff; transition:background .12s var(--ease), transform .12s var(--ease);
+}
+.tile-popover-btn .ic{ font-size:14px; line-height:1; }
+.tile-popover-btn .lb{ font-size:8.5px; font-weight:600; text-align:center; line-height:1.15; white-space:normal; }
+.tile-popover-btn:hover{ background:rgba(255,255,255,.32); transform:scale(1.05); }
+.tile-popover-btn.danger:hover{ background:rgba(255,90,110,.6); }
+
+/* While a tile's menu is open, its own hover-only chrome (fav/select/menu
+   button) stays hidden underneath the popover so nothing peeks out around
+   the blurred edges. */
+.tile.menu-open .tile-fav-btn, .tile.menu-open .tile-select{ opacity:0 !important; }
 
 /* ═══════════════════════════════════════════════════════════════════════
    List view
@@ -264,7 +745,7 @@ button{ font-family:inherit; }
 .list-row:first-child{ border-top:none; }
 .list-row:hover{ background:var(--card-2); }
 .list-check{
-  width:20px; height:20px; border-radius:6px; border:1.5px solid #D3D5DE; background:#fff;
+  width:20px; height:20px; border-radius:6px; border:1.5px solid rgba(255,255,255,.22); background:var(--card-2);
   display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:11px; color:#fff;
   opacity:0; transition:opacity .12s var(--ease); cursor:pointer;
 }
@@ -334,11 +815,14 @@ button{ font-family:inherit; }
 .modal-backdrop{
   position:fixed; inset:0; background:rgba(10,10,14,.42); display:flex; align-items:center; justify-content:center;
   z-index:80; animation: fadeIn .15s var(--ease);
+  overflow-y:auto; padding:32px 16px; box-sizing:border-box;
+  align-items:safe center; /* keeps the modal reachable by scrolling instead of just clipping top/bottom when it's taller than the viewport */
 }
 @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
 .modal{
   background:var(--panel); border-radius:var(--r-lg); padding:26px; width:360px; box-shadow:var(--shadow-lg);
   animation: cardIn .2s var(--ease);
+  max-height:calc(100vh - 64px); overflow-y:auto;
 }
 .modal h3{ margin:0 0 8px; font-size:16px; }
 .modal p{ margin:0 0 20px; color:var(--text-2); font-size:13px; line-height:1.5; }
@@ -354,6 +838,82 @@ button{ font-family:inherit; }
   border:3px solid var(--card-2); border-top-color:var(--accent3);
   animation: spin .8s linear infinite;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Gallery Tools (Batch Rename / Privacy Scrubber / Frame Extractor /
+   Contact Sheet) — shared widgets
+   ═══════════════════════════════════════════════════════════════════════ */
+.modal.modal-wide{ width:560px; max-width:calc(100vw - 32px); }
+.modal.modal-xxl{ width:min(1320px, 95vw); max-width:calc(100vw - 32px); max-height:90vh; overflow-y:auto; }
+.gt-field-label{ display:block; font-size:12px; color:var(--text-2); margin:10px 0 4px; }
+.gt-field{
+  width:100%; box-sizing:border-box; border:1px solid var(--border); border-radius:10px;
+  padding:9px 11px; font-size:13px; outline:none; background:var(--panel); color:var(--text);
+}
+.gt-field:focus{ border-color:var(--accent3); box-shadow:0 0 0 3px var(--accent3-bg); }
+.gt-row{ display:flex; gap:10px; }
+.gt-row > *{ flex:1; min-width:0; }
+.gt-tabs{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+.gt-tab{
+  border:1px solid var(--border); background:var(--card-2); color:var(--text-2); border-radius:999px;
+  padding:6px 12px; font-size:12px; cursor:pointer;
+}
+.gt-tab.active{ background:var(--accent3); border-color:var(--accent3); color:#fff; }
+
+.gt-reorder-list{ max-height:280px; overflow-y:auto; border:1px solid var(--border); border-radius:10px; margin:8px 0 4px; }
+.gt-reorder-row{
+  display:flex; align-items:center; gap:10px; padding:8px 10px; border-bottom:1px solid var(--border);
+  background:var(--panel); cursor:grab; user-select:none;
+}
+.gt-reorder-row:last-child{ border-bottom:none; }
+.gt-reorder-row.dragging{ opacity:.35; }
+.gt-reorder-row.drop-over{ box-shadow:inset 0 2px 0 var(--accent3); }
+.gt-reorder-num{ width:22px; text-align:center; font-size:12px; color:var(--text-2); flex-shrink:0; }
+.gt-reorder-handle{ color:var(--text-2); cursor:grab; flex-shrink:0; }
+.gt-reorder-thumb{
+  width:36px; height:36px; border-radius:6px; object-fit:cover; background:var(--card-2); flex-shrink:0;
+}
+.gt-reorder-name{ font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+
+.gt-preview-table{ width:100%; border-collapse:collapse; font-size:12.5px; margin:8px 0; }
+.gt-preview-table th{ text-align:left; color:var(--text-2); font-weight:500; padding:4px 6px; font-size:11px; }
+.gt-preview-table td{ padding:4px 6px; border-top:1px solid var(--border); }
+.gt-preview-table tr.conflict td{ color:var(--danger, #E1293D); }
+.gt-arrow{ color:var(--text-2); padding:0 4px; }
+
+.gt-checklist{ display:flex; flex-direction:column; gap:8px; margin:10px 0; }
+.gt-check-row{ display:flex; align-items:center; gap:8px; font-size:13px; }
+
+.gt-scan-item{ border:1px solid var(--border); border-radius:10px; padding:10px 12px; margin-bottom:8px; }
+.gt-scan-item .name{ font-size:12.5px; font-weight:600; margin-bottom:6px; }
+.gt-scan-fields{ display:flex; flex-wrap:wrap; gap:6px; }
+.gt-tag{ font-size:11px; padding:2px 8px; border-radius:999px; background:var(--card-2); color:var(--text-2); }
+.gt-tag.found{ background:var(--danger-bg, #E1293D22); color:var(--danger, #E1293D); }
+
+.gt-progress-wrap{ margin:14px 0 6px; }
+.gt-progress-bar{ height:8px; border-radius:999px; background:var(--card-2); overflow:hidden; }
+.gt-progress-fill{ height:100%; background:var(--accent3); transition:width .2s ease; border-radius:999px; }
+.gt-progress-label{ display:flex; justify-content:space-between; font-size:11.5px; color:var(--text-2); margin-top:6px; }
+
+.gt-radio-grid{ display:grid; grid-template-columns:1fr 1fr; gap:6px; margin:8px 0 4px; }
+.gt-radio-opt{
+  border:1px solid var(--border); border-radius:10px; padding:8px 10px; font-size:12.5px; cursor:pointer;
+  display:flex; align-items:center; gap:8px; background:var(--panel);
+}
+.gt-radio-opt.active{ border-color:var(--accent3); background:var(--accent3-bg); }
+.iq-target-grid .gt-radio-opt{ flex-direction:column; align-items:flex-start; gap:2px; }
+.iq-compare{ display:flex; gap:20px; margin:10px 0 4px; }
+.iq-compare-col{ flex:1; min-width:0; text-align:center; }
+.iq-compare-label{ font-size:12.5px; font-weight:700; color:var(--text-2); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
+.iq-compare-frame{
+  width:100%; height:min(62vh, 620px); border-radius:12px; background:var(--card-2);
+  border:1px solid var(--border); display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+.iq-compare-img{ width:100%; height:100%; object-fit:contain; }
+.iq-compare-dims{ font-size:12.5px; color:var(--text-2); margin-top:8px; }
+.iq-ai-box{ margin-top:14px; padding:10px 12px; border:1px solid var(--border); border-radius:10px; background:var(--card-2); }
+.iq-ai-label{ display:flex; align-items:flex-start; gap:10px; font-size:12.5px; cursor:pointer; }
+.iq-ai-label input[type=checkbox]{ margin-top:2px; }
 @keyframes spin{ to{ transform:rotate(360deg); } }
 
 /* ═══════════════════════════════════════════════════════════════════════
@@ -371,8 +931,11 @@ button{ font-family:inherit; }
   background:transparent; border:none; color:var(--v-text-2); font-size:15px; padding:8px 11px; border-radius:8px; cursor:pointer;
 }
 .lb-btn:hover{ background:var(--v-card); color:var(--v-text); }
-.lb-stage{ flex:1; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-.lb-stage img{ max-width:92%; max-height:88%; object-fit:contain; border-radius:6px; animation: fadeIn .15s var(--ease); }
+.lb-btn:disabled{ opacity:.4; cursor:not-allowed; }
+.lb-btn:disabled:hover{ background:transparent; color:var(--v-text-2); }
+.lb-stage{ flex:1; position:relative; display:flex; align-items:center; justify-content:center; overflow:hidden; touch-action:none; }
+.lb-stage img{ max-width:92%; max-height:88%; object-fit:contain; border-radius:6px; animation: fadeIn .15s var(--ease);
+  -webkit-user-drag:none; user-drag:none; -webkit-user-select:none; user-select:none; }
 .lb-stage video{ max-width:94%; max-height:90%; border-radius:6px; }
 .lb-nav{
   position:absolute; top:0; bottom:0; width:70px; display:flex; align-items:center; justify-content:center;
@@ -387,8 +950,540 @@ button{ font-family:inherit; }
 
 .lb-notice{ display:flex; align-items:center; justify-content:space-between; background:var(--v-card); padding:8px 18px; font-size:12px; color:var(--v-text-2); }
 
+.lb-zoom{ display:flex; align-items:center; gap:4px; margin-left:10px; }
+.lb-zoom-pct{ color:var(--v-text-2); font-size:11.5px; width:38px; text-align:center; }
+.lb-stage img{ transform-origin:center center; will-change:transform; touch-action:none; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Quick-hide cover — an innocuous clock screen, master account only
+   ═══════════════════════════════════════════════════════════════════════ */
+.cover-overlay{
+  position:fixed; inset:0; z-index:200; background:
+    radial-gradient(1000px 600px at 50% 20%, #23262E 0%, #0B0C10 65%);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; user-select:none;
+}
+.cover-clock{ font-size:64px; font-weight:300; color:#F1F2F6; letter-spacing:1px; }
+.cover-date{ font-size:15px; color:#9AA0A6; margin-top:6px; }
+.cover-hint{ font-size:12px; color:#5A5E66; margin-top:34px; letter-spacing:.5px; }
+.cover-pw{
+  margin-top:34px; width:220px; text-align:center; border:1px solid #33363D; border-radius:10px;
+  padding:11px 14px; font-size:14px; background:#16171B; color:#F1F2F6; outline:none;
+}
+.cover-pw:focus{ border-color:var(--accent3); }
+.cover-err{ margin-top:10px; font-size:12px; color:#FF6B7A; min-height:16px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Background position/zoom editor
+   ═══════════════════════════════════════════════════════════════════════ */
+.bg-edit-modal{ width:auto; max-width:92vw; }
+.bg-edit-frame{
+  position:relative; overflow:hidden; border-radius:10px; margin:14px auto 12px;
+  background:#111319; border:1px solid var(--border); cursor:grab; touch-action:none;
+}
+.bg-edit-img{
+  position:absolute; top:50%; left:50%; max-width:none; max-height:none;
+  transform-origin:center center; will-change:transform;
+  -webkit-user-drag:none; user-drag:none; -webkit-user-select:none; user-select:none;
+}
+.bg-edit-zoom-row{ display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:16px; }
+.bg-edit-zoom-pct{ color:var(--text-2); font-size:11.5px; width:42px; text-align:center; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   "Choose from vault" background picker — folder-navigable, scrollable
+   ═══════════════════════════════════════════════════════════════════════ */
+.vault-picker-modal{ width:760px; max-width:92vw; }
+.vault-picker-crumbs{
+  display:flex; align-items:center; flex-wrap:wrap; gap:2px; margin-bottom:10px;
+  font-size:12px; color:var(--text-2);
+}
+.vault-picker-crumb{ cursor:pointer; padding:3px 6px; border-radius:6px; white-space:nowrap; }
+.vault-picker-crumb:hover{ background:var(--card-2); color:var(--text); }
+.vault-picker-crumb.current{ color:var(--text); font-weight:700; cursor:default; }
+.vault-picker-crumb.current:hover{ background:none; }
+.vault-picker-crumb-sep{ color:var(--text-3); padding:0 1px; }
+
+/* True shortest-column masonry (same engine as the main gallery — see
+   applyMasonryLayout) instead of CSS multi-column: CSS `columns` balances
+   by total content rather than placing each tile in the actually-shortest
+   column, so tiles ended up reading left-to-right in loose horizontal rows
+   instead of settling into clean vertical columns. This container IS the
+   scroll viewport (tall/vertical, not wide), and its own height is set by
+   the layout function to match its tallest column. */
+.vault-picker-grid{
+  max-height:65vh; overflow-y:auto; overflow-x:hidden; margin-bottom:6px; padding-right:4px;
+}
+.vault-picker-grid.masonry-js{ position:relative; display:block; }
+.vault-picker-grid.masonry-js > .vault-picker-tile{
+  position:absolute; top:0; left:0; margin:0;
+  transition:left .18s var(--ease), top .18s var(--ease), width .18s var(--ease), height .18s var(--ease),
+             border-color .12s var(--ease), transform .12s var(--ease);
+}
+.vault-picker-tile{
+  display:block; width:100%; border-radius:10px; overflow:hidden; cursor:pointer;
+  border:2px solid transparent; background:var(--card-2);
+  transition:border-color .12s var(--ease), transform .12s var(--ease);
+}
+.vault-picker-tile:hover{ border-color:var(--accent3); transform:translateY(-1px); }
+.vault-picker-tile.image img{ width:100%; height:100%; object-fit:contain; background:var(--card-2); display:block; }
+.vault-picker-tile.folder{
+  aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; padding:6px;
+  background:linear-gradient(160deg, var(--card-2), var(--border));
+}
+.vault-picker-folder-icon{ font-size:27px; }
+.vault-picker-tile-name{
+  font-size:10px; color:var(--text-2); text-align:center; white-space:nowrap;
+  overflow:hidden; text-overflow:ellipsis; width:100%;
+}
+.vault-picker-status{ text-align:center; font-size:12px; color:var(--text-3); padding:26px 0; }
+.vault-picker-count{ font-size:11.5px; color:var(--text-3); }
+
+/* Multi-select state for the album "Add from Vault" picker — same tile,
+   an extra ring + checkmark badge instead of navigating away on click. */
+.vault-picker-tile.image{ position:relative; }
+.vault-picker-tile.picked{ border-color:var(--accent3); box-shadow:0 0 0 2px var(--accent3-bg); }
+.vault-picker-check{
+  position:absolute; top:5px; right:5px; width:19px; height:19px; border-radius:50%;
+  background:rgba(16,17,22,.55); border:1.5px solid rgba(255,255,255,.65); color:#fff;
+  font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  transition:background .12s var(--ease), border-color .12s var(--ease);
+}
+.vault-picker-tile.picked .vault-picker-check{
+  background:var(--accent3); border-color:var(--accent3); content:"";
+}
+.vault-picker-tile.picked .vault-picker-check::before{ content:"\2713"; }
+
 .screen-fade{ animation: fadeIn .18s var(--ease); height:100%; }
 
 @media (max-width: 900px){
-  .sidebar{ width:180px; }
+  .sidebar{ width:190px; margin:10px 10px 10px 0; padding:16px 10px 14px; }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Phase 1: Custom Sorting control
+   ═══════════════════════════════════════════════════════════════════════ */
+.sort-control{ display:flex; align-items:center; gap:6px; }
+.sort-select{
+  border:1px solid var(--border); border-radius:8px; padding:7px 10px; font-size:12.5px;
+  background:var(--card); color:var(--text-1); outline:none; cursor:pointer;
+}
+.sort-select:focus{ border-color:var(--accent3); }
+.sort-dir-btn{ padding:6px 10px !important; font-size:13px !important; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Phase 1: Drag-to-reorder (Manual Sort)
+   ═══════════════════════════════════════════════════════════════════════ */
+.tile.drag-source, .list-row.drag-source{
+  opacity:.45; box-shadow:none; cursor:grabbing !important;
+}
+.drop-indicator-grid{
+  width:100%; aspect-ratio:1; border-radius:var(--r-md);
+  border:2px dashed var(--accent3); background:var(--accent3-bg);
+  animation: fadeIn .1s var(--ease);
+}
+.drop-indicator-list{
+  height:44px; border-radius:8px; margin:2px 16px;
+  border:2px dashed var(--accent3); background:var(--accent3-bg);
+  animation: fadeIn .1s var(--ease);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Phase 1: Keyboard shortcut recorder
+   ═══════════════════════════════════════════════════════════════════════ */
+.shortcut-key{ min-width:150px; font-family:inherit; }
+.shortcut-key.conflict{ color:var(--danger); border-color:var(--danger); }
+.shortcut-key.recording{ color:var(--accent3); border-color:var(--accent3); }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Phase 1: Custom Viewer Appearance
+   ═══════════════════════════════════════════════════════════════════════ */
+.lb-bg-dark #app-bg, .lb-bg-black #app-bg, .lb-bg-blurred #app-bg{ display:none; }
+.lb-bg-black .lightbox{ background:#000; }
+.lb-blur-backdrop{
+  position:absolute; inset:-20px; width:calc(100% + 40px); height:calc(100% + 40px);
+  object-fit:cover; filter:blur(38px) brightness(.55); transform:scale(1.1); z-index:0;
+}
+.lb-blurred-bg .lb-stage, .lb-blurred-bg .lb-bar{ position:relative; z-index:1; }
+.lb-controls-hidden .lb-bar, .lb-controls-hidden .lb-nav{
+  opacity:0 !important; pointer-events:none;
+}
+.lb-autohide-armed .lb-bar, .lb-autohide-armed .lb-nav{
+  transition:opacity .35s var(--ease);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Phase 1: Privacy Screen — reuses the quick-hide cover's frosted feel,
+   but lighter and undismissable-by-password (clears on refocus instead)
+   ═══════════════════════════════════════════════════════════════════════ */
+.privacy-screen-overlay{
+  position:fixed; inset:0; z-index:500;
+  background:rgba(11,12,16,.86); backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+}
+.privacy-screen-icon{ font-size:40px; opacity:.6; }
+.privacy-screen-text{ margin-top:10px; font-size:13px; color:#9AA0A6; letter-spacing:1px; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Phase 1: Custom Quick Hide — additional disguise modes
+   ═══════════════════════════════════════════════════════════════════════ */
+.cover-update{ background:radial-gradient(1000px 600px at 50% 30%, #1C3A5E 0%, #0B0C10 68%); }
+.cover-update-logo{ font-size:42px; }
+.cover-update-title{ font-size:19px; color:#F1F2F6; margin-top:14px; font-weight:600; }
+.cover-update-sub{ font-size:12.5px; color:#9AA0A6; margin-top:6px; max-width:320px; text-align:center; }
+.cover-update-pct{ font-size:13px; color:#C7CBD1; margin-top:22px; }
+.cover-update-bar{ width:280px; height:6px; border-radius:4px; background:#22242B; margin-top:8px; overflow:hidden; }
+.cover-update-fill{ height:100%; width:37%; background:#3B82F6; transition:width .6s linear; }
+.cover-update-link{ font-size:11px; color:#4B4F58; margin-top:30px; cursor:pointer; text-decoration:underline; }
+.cover-update-link:hover{ color:#6A6E78; }
+
+.cover-browser{ background:#fff; cursor:default; }
+.cover-browser-icon{ font-size:52px; opacity:.35; }
+.cover-browser-title{ font-size:20px; color:#202124; margin-top:16px; font-weight:400; }
+.cover-browser-sub{ font-size:13px; color:#5F6368; margin-top:10px; max-width:420px; text-align:center; line-height:1.5; }
+.cover-browser-retry{
+  margin-top:22px; padding:9px 18px; font-size:13px; border-radius:6px; border:1px solid #DADCE0;
+  background:#fff; color:#1A73E8; cursor:pointer;
+}
+.cover-browser-retry:hover{ background:#F4F8FE; }
+.cover-browser .cover-pw{
+  background:#fff; color:#202124; border-color:#DADCE0;
+}
+.cover-browser .cover-err{ color:#D93025; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Phase 2: Favorites, Pins, Folder Accent Colors, item badges
+   ═══════════════════════════════════════════════════════════════════════ */
+.tile.has-accent, .list-row.has-accent{
+  box-shadow: inset 3px 0 0 0 var(--accent-color), var(--shadow-sm);
+}
+.list-row.has-accent{ box-shadow:none; border-left:3px solid var(--accent-color); }
+
+.tile-fav-btn{
+  position:absolute; top:8px; right:8px; z-index:3; width:28px; height:28px; border-radius:50%;
+  border:none; background:rgba(20,21,26,.45); color:rgba(255,255,255,.55); font-size:15px; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity .12s var(--ease), transform .12s var(--ease), color .12s var(--ease);
+}
+.tile:hover .tile-fav-btn, .tile-fav-btn.active{ opacity:1; }
+.tile-fav-btn.active{ color:#FFC94A; }
+.tile-fav-btn:hover{ transform:scale(1.12); }
+
+.list-fav-btn{
+  border:none; background:transparent; color:var(--text-3); font-size:15px; cursor:pointer; flex-shrink:0;
+  width:28px; display:flex; align-items:center; justify-content:center; opacity:.35; transition:opacity .12s var(--ease), color .12s var(--ease);
+}
+.list-row:hover .list-fav-btn, .list-fav-btn.active{ opacity:1; }
+.list-fav-btn.active{ color:#E8A930; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Album detail — real, JS-computed masonry (see applyMasonryLayout() in
+   app.js). Tiles here use the exact same .tile/.tile-thumb/.masonry-tile
+   markup as the main grid and Favorites now — no separate CSS needed
+   beyond what's already defined for .grid.masonry-js below.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+.badge-custom-icon{
+  background:rgba(20,21,26,.55); border-radius:6px; padding:3px 6px; font-size:12px; backdrop-filter:blur(4px);
+}
+.badge-pin{
+  background:rgba(20,21,26,.55); border-radius:6px; padding:3px 6px; font-size:11px; backdrop-filter:blur(4px);
+}
+.pin-dot{ margin-right:5px; font-size:11px; }
+
+/* Favorites view */
+.tile.has-accent .tile-scrim{ /* accent already shown via inset shadow */ }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Phase 2: Customize modal (icon/color/tags/description/background)
+   ═══════════════════════════════════════════════════════════════════════ */
+.customize-modal{ width:420px; max-width:92vw; }
+/* Header and the Save/Cancel row are the first/last children of the modal
+   (see openCustomizeModal in app.js) — pin them in place so they're always
+   reachable even though the fields between them scroll on shorter screens. */
+.customize-modal > h3:first-child{
+  position:sticky; top:0; margin:0 0 10px; padding:0 0 10px;
+  background:var(--panel); z-index:2; border-bottom:1px solid var(--border);
+}
+.customize-modal > .row:last-child{
+  position:sticky; bottom:0; margin:14px 0 0; padding:12px 0 0;
+  background:var(--panel); z-index:2; border-top:1px solid var(--border);
+}
+.customize-section-label{ font-size:11.5px; font-weight:700; color:var(--text-3); text-transform:uppercase; letter-spacing:.4px; margin:14px 0 6px; }
+.customize-section-label:first-of-type{ margin-top:4px; }
+.customize-modal input[type=text], .customize-modal textarea{
+  width:100%; border:1px solid var(--border); border-radius:10px; padding:9px 12px; font-size:13px;
+  outline:none; font-family:inherit; resize:vertical; background:var(--panel); color:var(--text);
+}
+.customize-modal input[type=text]:focus, .customize-modal textarea:focus{ border-color:var(--accent3); }
+.customize-swatches{ display:flex; flex-wrap:wrap; gap:8px; }
+.customize-swatch{
+  width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid transparent;
+  display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px;
+  transition:transform .1s var(--ease);
+}
+.customize-swatch.none{ background:var(--card-2); color:var(--text-3); border-color:var(--border); }
+.customize-swatch.active{ border-color:var(--text-1); transform:scale(1.12); }
+.customize-icon-choice{
+  width:34px; height:34px; border-radius:9px; cursor:pointer; border:2px solid var(--border);
+  display:flex; align-items:center; justify-content:center; font-size:16px; background:var(--card-2);
+  transition:transform .1s var(--ease), border-color .1s var(--ease);
+}
+.customize-icon-choice.active{ border-color:var(--accent3); background:var(--accent3-bg); transform:scale(1.08); }
+.tag-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+.tag-chip{
+  background:var(--card-2); border:1px solid var(--border); border-radius:999px; padding:4px 6px 4px 10px;
+  font-size:12px; display:flex; align-items:center; gap:6px;
+}
+.tag-chip-x{ cursor:pointer; opacity:.5; font-size:10px; }
+.tag-chip-x:hover{ opacity:1; }
+
+/* Folder background applied while browsing inside that folder */
+.content.has-folder-bg{
+  background-size:cover; background-position:center; position:relative;
+}
+.content.has-folder-bg::before{
+  content:""; position:absolute; inset:0; background:rgba(12,13,18,.72); pointer-events:none; z-index:0;
+}
+.content.has-folder-bg > *{ position:relative; z-index:1; }
+
+/* ── Phase 3.4/3.5: Custom Folder Header + Folder Cover Styles ─────────── */
+.folder-header{
+  display:flex; align-items:center; gap:18px; margin:0 0 20px; padding:16px;
+  background:var(--card); border:1px solid var(--border); border-radius:var(--r-lg); box-shadow:var(--shadow);
+}
+.folder-cover{
+  width:76px; height:76px; border-radius:var(--r-md); background:var(--card-2) center/cover no-repeat;
+  display:flex; align-items:center; justify-content:center; flex:none; overflow:hidden;
+}
+.folder-cover-fallback{ font-size:32px; opacity:.6; }
+.folder-cover-poster{ width:64px; height:96px; border-radius:8px; box-shadow:var(--shadow-lg); }
+.folder-cover-glass{
+  border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(6px);
+  box-shadow:0 4px 18px -6px rgba(20,22,30,.25), inset 0 0 0 1px rgba(255,255,255,.15);
+}
+.folder-header-info{ min-width:0; }
+.folder-header-title{ margin:0; font-size:19px; font-weight:800; }
+.folder-header-desc{ margin:4px 0 0; font-size:13px; color:var(--text-2); max-width:60ch; }
+.folder-header-tags{ display:flex; flex-wrap:wrap; gap:5px; margin-top:8px; }
+.tag-chip.small{ padding:2px 9px; font-size:11px; }
+.folder-header-stats{ margin-top:8px; font-size:12px; color:var(--text-3); font-weight:600; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Masonry (JS-computed) — the layout math itself lives in
+   applyMasonryLayout() in app.js, which measures each tile's real image
+   and absolutely positions it at the exact left/top/width/height that
+   preserves its true aspect ratio, packing into whichever column is
+   currently shortest. This is NOT CSS multi-column (column-count): that
+   approach balances columns by total content rather than true
+   shortest-column placement and behaved inconsistently, which is why it
+   was replaced everywhere (main grid, Favorites, Album detail) rather
+   than reused. The container just needs position:relative + a
+   JS-managed height; every child tile is absolutely positioned within it.
+   A tile gets BOTH `tile` and `masonry-tile` classes whenever it has a
+   real thumbnail image to flow at its own aspect ratio — every photo/
+   video file, AND any folder whose thumbnail is a real image (an
+   auto-detected preview or one the person set), not just an icon.
+   Keeping `tile` means all existing interactive chrome (hover actions,
+   select checkbox, the ⋯ popover, the favorite star, drag-reorder) keeps
+   working unchanged, since that CSS is already keyed off `.tile` /
+   `.tile:hover`. `masonry-tile` switches the image's object-fit from
+   cover (cropped square, used only by icon-fallback tiles) to contain (no
+   crop — the box is already sized to the image's own aspect ratio, so
+   this is just a safety net for any transient/rounding mismatch).
+   ═══════════════════════════════════════════════════════════════════════ */
+.grid.masonry-js{ position:relative; display:block; }
+.grid.masonry-js > .tile{
+  position:absolute; top:0; left:0; margin:0;
+  transition:left .18s var(--ease), top .18s var(--ease), width .18s var(--ease), height .18s var(--ease),
+             transform .2s var(--ease), box-shadow .2s var(--ease);
+}
+.tile.masonry-tile{ aspect-ratio:auto; }
+.tile.masonry-tile .tile-thumb img{ object-fit:contain; background:var(--card-2); }
+
+/* Grid-tile-level cover style variants (applied via the shared coverStylePref) */
+.grid .tile.cover-poster .tile-thumb{ aspect-ratio:3/4.2; }
+.grid .tile.cover-glass .tile-thumb{
+  border:1px solid rgba(255,255,255,.3); backdrop-filter:blur(4px);
+}
+
+/* ── Phase 3.6: Custom Empty States ─────────────────────────────────────── */
+.empty-state-custom .empty-state-custom-img{
+  width:120px; height:120px; object-fit:cover; border-radius:var(--r-md); margin:0 auto 14px; display:block;
+  box-shadow:var(--shadow);
+}
+
+/* ── Phase 3.3: Folder Appearance Profiles / Layout Presets ─────────────── */
+.profile-list{ display:flex; flex-direction:column; }
+.profile-list .settings-row select{ margin-right:8px; }
+
+/* ── Nested list-view custom icon badge (Appearance Inheritance) ────────── */
+.list-custom-icon{ margin-right:2px; }
+
+/* ── Phase 5.1: Folder Rules & Automation ────────────────────────────────── */
+.rule-list{ display:flex; flex-direction:column; gap:6px; margin:8px 0 14px; }
+.rule-row{ display:flex; align-items:center; gap:10px; padding:6px 4px; border-bottom:1px solid var(--border); }
+.rule-summary{ flex:1; font-size:12px; }
+.folder-header-badges{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.rule-badge{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:11px; font-weight:700; }
+.rule-badge-info{ background:var(--card-2); color:var(--text-2); }
+.rule-badge-suggest{ background:#3f2d0a; color:#fbbf24; }
+.rule-badge.clickable{ cursor:pointer; }
+.rule-badge.clickable:hover{ filter:brightness(0.95); }
+
+/* ── Phase 5.2: Complete Folder Identity System ──────────────────────────── */
+.identity-modal{ width:620px; max-width:94vw; max-height:86vh; overflow-y:auto; }
+.identity-tabs{ display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:16px; }
+.identity-tab{ padding:8px 14px; font-size:12.5px; font-weight:700; cursor:pointer; border-bottom:2px solid transparent; color:var(--text-3); }
+.identity-tab.active{ color:var(--accent3); border-bottom-color:var(--accent3); }
+.identity-section{ display:none; }
+.identity-section.active{ display:block; }
+.identity-info-row{ display:flex; justify-content:space-between; padding:7px 0; font-size:12.5px; border-bottom:1px solid var(--border); }
+.identity-info-row b{ font-weight:700; }
+
+/* ── Phase 4.1: Hierarchical Storage Visualization ───────────────────────── */
+.storage-viz-modal{ width:520px; max-width:92vw; }
+.storage-viz-list{ display:flex; flex-direction:column; gap:8px; max-height:52vh; overflow-y:auto; margin-top:8px; }
+.storage-viz-row{ display:flex; align-items:center; gap:10px; padding:8px 6px; border-radius:10px; }
+.storage-viz-row.clickable{ cursor:pointer; }
+.storage-viz-row.clickable:hover{ background:var(--card-2); }
+.storage-viz-icon{ font-size:18px; flex:none; width:24px; text-align:center; }
+.storage-viz-info{ flex:1; min-width:0; }
+.storage-viz-name{ font-size:12.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:4px; }
+.storage-viz-bar-track{ height:6px; border-radius:4px; background:var(--card-2); overflow:hidden; }
+.storage-viz-bar-fill{ height:100%; background:var(--accent3); border-radius:4px; }
+.storage-viz-size{ font-size:11px; color:var(--text-3); white-space:nowrap; flex:none; }
+
+/* ── Phase 4.4: Duplicate Finder ──────────────────────────────────────────── */
+.dup-finder-modal{ width:640px; max-width:94vw; }
+.dup-group{ border:1px solid var(--border); border-radius:12px; padding:10px 12px; margin-bottom:12px; }
+.dup-group-hdr{ font-size:12px; font-weight:700; margin-bottom:8px; color:var(--text-2); }
+.dup-item-row{ display:flex; align-items:center; gap:10px; padding:6px 4px; }
+.dup-item-thumb{ width:36px; height:36px; border-radius:8px; object-fit:cover; background:var(--card-2); flex:none; }
+.dup-item-info{ flex:1; min-width:0; }
+.dup-item-name{ font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dup-item-path{ font-size:10.5px; color:var(--text-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+
+/* ── Phase 3.1: Custom Home Dashboard ────────────────────────────────────── */
+@keyframes dashCardIn{
+  from{ opacity:0; transform:translateY(14px) scale(.98); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
+@keyframes dashGlow{
+  0%,100%{ opacity:.55; }
+  50%{ opacity:1; }
+}
+.dashboard-grid{
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:18px; padding:4px 0 24px;
+}
+.dashboard-card{
+  position:relative; isolation:isolate; overflow:hidden;
+  background:linear-gradient(165deg, rgba(35,38,54,.72) 0%, rgba(20,21,28,.78) 100%);
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+  border:1px solid rgba(255,255,255,.09); border-radius:var(--r-lg); padding:18px 20px;
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset, 0 16px 32px -20px rgba(0,0,0,.65);
+  display:flex; flex-direction:column; gap:10px;
+  animation:dashCardIn .5s var(--ease) both;
+  animation-delay:var(--dash-delay, 0ms);
+  transition:transform .25s var(--ease), box-shadow .3s var(--ease), border-color .3s var(--ease);
+}
+/* A soft animated accent bar across the top of every card — the "alive"
+   touch that makes the dashboard read as more than a static grid. */
+.dashboard-card::before{
+  content:""; position:absolute; inset:0 0 auto 0; height:3px; z-index:1;
+  background:linear-gradient(90deg, var(--accent3), var(--nav-accent-2), #22C55E, var(--accent3));
+  background-size:300% 100%; opacity:.55;
+  animation:dashGlow 3.5s ease-in-out infinite;
+}
+.dashboard-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(107,127,255,.35);
+  box-shadow:0 1px 0 rgba(255,255,255,.08) inset, 0 22px 40px -18px rgba(61,90,254,.35);
+}
+.dashboard-card-wide{ grid-column:1 / -1; }
+/* The Appearance widget reuses renderAppearanceCard(), which also carries
+   the plain .settings-card class — override its standalone spacing here
+   (grid gap already handles it) without touching Settings' own look. */
+.dashboard-card.settings-card{ margin-bottom:0; }
+.dashboard-card h3{ margin:0; font-size:14px; font-weight:800; display:flex; align-items:center; justify-content:space-between; }
+.dashboard-card .see-all{ font-size:11.5px; font-weight:700; color:var(--accent3); cursor:pointer; transition:color .15s var(--ease); }
+.dashboard-card .see-all:hover{ color:var(--nav-accent-2); text-decoration:underline; }
+.dashboard-stat-row{ display:flex; justify-content:space-between; align-items:baseline; padding:6px 0; }
+.dashboard-stat-row b{ font-size:22px; background:linear-gradient(120deg, var(--nav-accent-2), var(--accent3)); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.dashboard-mini-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+.dashboard-mini-tile{
+  aspect-ratio:1; border-radius:10px; background:var(--card-2) center/cover no-repeat; cursor:pointer;
+  display:flex; align-items:flex-end; position:relative; overflow:hidden; font-size:22px;
+  transition:transform .2s var(--ease), box-shadow .2s var(--ease);
+}
+.dashboard-mini-tile:hover{ outline:2px solid var(--accent3); transform:translateY(-2px) scale(1.03); box-shadow:0 10px 22px -12px rgba(61,90,254,.55); }
+.dashboard-mini-tile .mini-label{
+  width:100%; font-size:10px; padding:4px 6px; background:linear-gradient(transparent, rgba(0,0,0,.65));
+  color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.dashboard-empty{ font-size:12.5px; color:var(--text-3); padding:8px 0; }
+.dashboard-widget-toggles{
+  display:flex; flex-wrap:wrap; gap:10px; margin-bottom:14px;
+}
+.dashboard-widget-toggles label{
+  font-size:12px; display:flex; align-items:center; gap:7px; cursor:pointer;
+  padding:6px 12px; border-radius:999px;
+  background:rgba(107,127,255,.10); border:1px solid rgba(107,127,255,.20);
+  backdrop-filter:blur(8px); transition:background .18s var(--ease), border-color .18s var(--ease);
+}
+.dashboard-widget-toggles label:hover{ background:rgba(107,127,255,.18); border-color:rgba(107,127,255,.35); }
+/* ═══════════════════════════════════════════════════════════════════════
+   Privacy & Security page
+   ═══════════════════════════════════════════════════════════════════════ */
+.tech-card{ background:var(--card); border:1px solid var(--border); border-radius:var(--r-md); padding:22px 24px; margin-bottom:18px; }
+.tech-card h3{ margin:0 0 4px; font-size:14.5px; display:flex; align-items:center; gap:8px; }
+.tech-card .desc{ color:var(--text-2); font-size:12.5px; margin:0 0 14px; line-height:1.7; }
+.tech-list{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px; }
+.tech-list li{ font-size:12.5px; color:var(--text-2); line-height:1.7; padding-left:18px; position:relative; }
+.tech-list li::before{ content:"\2022"; position:absolute; left:2px; color:var(--accent3); font-weight:900; }
+.tech-list li b{ color:var(--text); }
+.tech-note{ display:flex; gap:10px; align-items:flex-start; border-radius:var(--r-sm); padding:12px 14px; font-size:12px; line-height:1.7; margin-top:4px; }
+.tech-note.info{ background:var(--accent3-bg); color:var(--accent3); }
+.tech-note.danger{ background:var(--danger-bg); color:var(--danger-h); }
+.tech-note b{ color:inherit; }
+.security-hero{
+  background:linear-gradient(135deg,#17181D,#33353D); color:#fff; border-radius:var(--r-lg);
+  padding:26px 28px; margin-bottom:22px; display:flex; flex-direction:column; gap:8px;
+}
+.security-hero h2{ margin:0; font-size:19px; }
+.security-hero p{ margin:0; font-size:12.5px; color:rgba(255,255,255,.72); max-width:520px; line-height:1.7; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Help page — colour-coded risk zones
+   ═══════════════════════════════════════════════════════════════════════ */
+.help-intro{ font-size:12.5px; color:var(--text-2); line-height:1.8; margin:0 0 24px; max-width:640px; }
+.zone-banner{
+  display:flex; align-items:center; gap:12px; border-radius:var(--r-md); padding:16px 20px;
+  margin:26px 0 14px; font-weight:800; font-size:14.5px;
+}
+.zone-banner:first-of-type{ margin-top:0; }
+.zone-banner .zone-emoji{ font-size:22px; line-height:1; }
+.zone-banner .zone-copy{ display:flex; flex-direction:column; gap:2px; }
+.zone-banner .zone-copy span{ font-weight:500; font-size:12px; opacity:.85; }
+.zone-banner.green{ background:var(--success-bg); color:var(--success-h); }
+.zone-banner.yellow{ background:var(--warn-bg); color:var(--warn-h); }
+.zone-banner.red{ background:var(--danger-bg); color:var(--danger-h); }
+
+.help-card{
+  background:var(--card); border:1px solid var(--border); border-left:5px solid var(--border);
+  border-radius:var(--r-md); padding:16px 20px; margin-bottom:12px;
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+}
+.help-card.green{ border-left-color:var(--success); }
+.help-card.yellow{ border-left-color:var(--warn); }
+.help-card.red{ border-left-color:var(--danger); }
+.help-card .help-body{ flex:1; }
+.help-card .label{ font-size:13.5px; font-weight:700; margin-bottom:4px; }
+.help-card .sub{ font-size:12px; color:var(--text-2); line-height:1.7; }
+.help-card .help-action{ flex-shrink:0; }
+.zone-badge{
+  display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800;
+  letter-spacing:.02em; padding:3px 9px; border-radius:999px; margin-bottom:8px; text-transform:uppercase;
+}
+.zone-badge.green{ background:var(--success-bg); color:var(--success-h); }
+.zone-badge.yellow{ background:var(--warn-bg); color:var(--warn-h); }
+.zone-badge.red{ background:var(--danger-bg); color:var(--danger-h); }
